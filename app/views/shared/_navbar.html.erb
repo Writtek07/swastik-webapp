@@ -1,0 +1,219 @@
+<%#
+  Sticky primary navigation.
+  Desktop: horizontal links with a hover mega menu for entries that have children.
+  Mobile: a slide-in drawer with collapsible groups.
+  Both are driven by Catalog::NAV so the two never drift apart.
+
+  The Stimulus controller wraps the header, scrim and drawer. The wrapper uses
+  `display: contents` so it generates no box — that keeps the header's sticky
+  positioning relative to the page rather than to a short wrapper.
+%>
+<div
+  class="contents"
+  data-controller="site-nav"
+  data-action="keydown.esc@window->site-nav#closeAll"
+>
+  <%# Utility strip — contact details, desktop only. %>
+  <div class="hidden border-b border-ink-900/10 bg-ink-950 text-white lg:block dark:border-white/10">
+    <div class="shell flex h-10 items-center justify-between text-[11px] font-semibold tracking-[0.12em]">
+      <div class="flex items-center gap-6 text-ink-300">
+        <span class="inline-flex items-center gap-2">
+          <%= icon "pin", class: "h-3.5 w-3.5 text-ember-400" %>
+          <%= Catalog::COMPANY[:address] %>
+        </span>
+        <span class="inline-flex items-center gap-2">
+          <%= icon "clock", class: "h-3.5 w-3.5 text-ember-400" %>
+          <%= Catalog::COMPANY[:hours] %>
+        </span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="tel:<%= Catalog::COMPANY[:phone].delete(' ') %>" class="inline-flex items-center gap-2 text-ink-200 transition-colors hover:text-ember-400">
+          <%= icon "phone", class: "h-3.5 w-3.5" %>
+          <%= Catalog::COMPANY[:phone] %>
+        </a>
+        <a href="mailto:<%= Catalog::COMPANY[:email] %>" class="inline-flex items-center gap-2 text-ink-200 transition-colors hover:text-ember-400">
+          <%= icon "mail", class: "h-3.5 w-3.5" %>
+          <%= Catalog::COMPANY[:email] %>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <header
+    class="nav-shell"
+    data-action="mouseleave->site-nav#scheduleClose focusout->site-nav#handleFocusOut"
+  >
+    <div class="shell flex h-[4.5rem] items-center justify-between gap-6">
+      <%= link_to root_path, class: "group flex shrink-0 items-center gap-3", aria: { label: "#{Catalog::COMPANY[:name]} home" } do %>
+        <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ember-600 text-white shadow-[0_10px_24px_-14px] shadow-ember-600/80 transition-transform duration-300 group-hover:-rotate-6">
+          <%= icon "bolt", class: "h-5 w-5", stroke: 1.8 %>
+        </span>
+        <span class="leading-none">
+          <span class="block font-display text-[15px] font-extrabold uppercase tracking-[0.2em] text-ink-950 dark:text-white">Swastik</span>
+          <span class="mt-1 block text-[9px] font-bold uppercase tracking-[0.28em] text-ink-500 dark:text-ink-400">Enterprise · Steel</span>
+        </span>
+      <% end %>
+
+      <nav class="hidden items-center gap-8 lg:flex" aria-label="Primary">
+        <% Catalog::NAV.each do |entry| %>
+          <% children = Catalog.nav_children(entry) %>
+          <% if children.present? %>
+            <div
+              class="relative"
+              data-site-nav-target="group"
+              data-action="mouseenter->site-nav#openGroup"
+            >
+              <button
+                type="button"
+                class="nav-link"
+                aria-expanded="false"
+                aria-haspopup="true"
+                data-site-nav-target="trigger"
+                data-action="click->site-nav#toggleGroup"
+                <%= 'aria-current="page"'.html_safe if nav_active?(entry) %>
+              >
+                <%= entry[:label] %>
+                <%= icon "chevron-down", class: "h-3 w-3" %>
+              </button>
+            </div>
+          <% else %>
+            <%= link_to entry[:label], nav_path(entry[:path]),
+                  class: "nav-link",
+                  aria: { current: (nav_active?(entry) ? "page" : nil) } %>
+          <% end %>
+        <% end %>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="icon-btn"
+          aria-label="Toggle colour theme"
+          data-action="click->site-nav#toggleTheme"
+        >
+          <%= icon "sun", class: "h-4 w-4 dark:hidden" %>
+          <%= icon "moon", class: "hidden h-4 w-4 dark:block" %>
+        </button>
+
+        <%= link_to contact_path, class: "btn-primary hidden sm:inline-flex" do %>
+          Request a quote
+          <%= icon "arrow-right" %>
+        <% end %>
+
+        <button
+          type="button"
+          class="icon-btn lg:hidden"
+          aria-label="Open menu"
+          aria-expanded="false"
+          data-site-nav-target="openButton"
+          data-action="click->site-nav#openDrawer"
+        >
+          <%= icon "menu", class: "h-5 w-5" %>
+        </button>
+      </div>
+    </div>
+
+    <%# Mega menu — one panel per group, positioned under the header. %>
+    <% Catalog::NAV.each do |entry| %>
+      <% children = Catalog.nav_children(entry) %>
+      <% next if children.blank? %>
+      <div
+        class="mega"
+        data-site-nav-target="panel"
+        data-open="false"
+        data-action="mouseenter->site-nav#keepOpen"
+        hidden
+      >
+        <div class="shell grid gap-10 py-10 lg:grid-cols-[0.9fr_2fr]">
+          <div>
+            <p class="kicker"><%= entry[:label] %></p>
+            <p class="mt-4 font-display text-2xl font-extrabold leading-tight tracking-[-0.03em]">
+              <%= entry[:label] == "Products" ? "Nine product families, one supply desk." : "The people and plants behind the steel." %>
+            </p>
+            <%= link_to nav_path(entry[:path]), class: "link-arrow mt-6" do %>
+              View all <%= entry[:label].downcase %>
+              <%= icon "arrow-up-right" %>
+            <% end %>
+          </div>
+          <div class="grid gap-1 sm:grid-cols-2 xl:grid-cols-3">
+            <% children.each do |child| %>
+              <%= link_to nav_path(child[:path]), class: "mega-item" do %>
+                <span class="mt-0.5 text-ember-500 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  <%= icon "arrow-right", class: "h-4 w-4" %>
+                </span>
+                <span>
+                  <span class="mega-item-title"><%= child[:label] %></span>
+                  <span class="mega-item-desc"><%= child[:description] %></span>
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </header>
+
+  <%# Mobile drawer %>
+  <div class="scrim" data-site-nav-target="scrim" data-open="false" data-action="click->site-nav#closeDrawer"></div>
+
+  <aside
+    class="drawer"
+    data-site-nav-target="drawer"
+    data-open="false"
+    aria-label="Mobile navigation"
+    aria-hidden="true"
+  >
+    <div class="flex h-[4.5rem] shrink-0 items-center justify-between border-b border-ink-900/10 px-5 dark:border-white/10">
+      <span class="font-display text-sm font-extrabold uppercase tracking-[0.2em]">Menu</span>
+      <button type="button" class="icon-btn" aria-label="Close menu" data-action="click->site-nav#closeDrawer">
+        <%= icon "close", class: "h-5 w-5" %>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-5 py-6">
+      <% Catalog::NAV.each do |entry| %>
+        <% children = Catalog.nav_children(entry) %>
+        <% if children.present? %>
+          <div data-controller="accordion">
+            <button
+              type="button"
+              class="drawer-link w-full"
+              aria-expanded="false"
+              data-accordion-target="trigger"
+              data-action="click->accordion#toggle"
+            >
+              <%= entry[:label] %>
+              <%= icon "plus", class: "h-4 w-4 text-ember-500" %>
+            </button>
+            <div class="accordion-panel" data-accordion-target="panel" data-open="false">
+              <div class="py-2">
+                <%= link_to "All #{entry[:label].downcase}", nav_path(entry[:path]), class: "drawer-sub font-semibold text-ember-600 dark:text-ember-400" %>
+                <% children.each do |child| %>
+                  <%= link_to child[:label], nav_path(child[:path]), class: "drawer-sub" %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <%= link_to entry[:label], nav_path(entry[:path]), class: "drawer-link" %>
+        <% end %>
+      <% end %>
+
+      <div class="mt-8 space-y-3">
+        <%= link_to contact_path, class: "btn-primary w-full" do %>
+          Request a quote
+          <%= icon "arrow-right" %>
+        <% end %>
+        <a href="tel:<%= Catalog::COMPANY[:phone].delete(' ') %>" class="btn-outline w-full">
+          <%= icon "phone" %>
+          <%= Catalog::COMPANY[:phone] %>
+        </a>
+      </div>
+
+      <div class="mt-8 space-y-3 border-t border-ink-900/10 pt-6 text-sm text-ink-500 dark:border-white/10 dark:text-ink-400">
+        <p class="flex items-start gap-3"><%= icon "pin", class: "mt-0.5 h-4 w-4 shrink-0 text-ember-500" %><%= Catalog::COMPANY[:address] %></p>
+        <p class="flex items-start gap-3"><%= icon "mail", class: "mt-0.5 h-4 w-4 shrink-0 text-ember-500" %><%= Catalog::COMPANY[:email] %></p>
+      </div>
+    </div>
+  </aside>
+</div>

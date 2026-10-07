@@ -1,0 +1,115 @@
+<% content_for :title, page_title("Products") %>
+<% content_for :description, "Structural steel, TMT reinforcement, tubes, pipes, sheets and plates — browse the Swastik Enterprise catalogue by family and size." %>
+
+<div data-controller="reveal">
+  <%= render "shared/page_hero",
+        kicker: "Product catalogue",
+        title: "Nine families, specified the way buyers actually order.",
+        lede: "Filter by family, check the common sizes and grades, then send the schedule straight to the sales desk. Cut-to-length and mill test certification are available on every family.",
+        breadcrumb: [ [ "Products", nil ] ] do %>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to contact_path, class: "btn-primary" do %>
+        Request a quotation
+        <%= icon "arrow-right" %>
+      <% end %>
+      <%= link_to plant_path, class: "btn-outline border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950" do %>
+        How it is made
+        <%= icon "arrow-up-right" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <section class="section" data-controller="catalog">
+    <div class="shell">
+      <%# ------------------------------------------------------- Filters %>
+      <div class="reveal flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between" data-reveal-target="item">
+        <div>
+          <p class="kicker">01 / Browse</p>
+          <h2 class="heading mt-5">Filter by product family</h2>
+        </div>
+        <p class="text-sm text-ink-500 dark:text-ink-400">
+          Showing <span class="font-bold text-ink-900 dark:text-white" data-catalog-target="count"><%= @products.length %></span>
+          of <%= Catalog::PRODUCTS.length %> families
+        </p>
+      </div>
+
+      <div class="reveal mt-8 flex gap-2 overflow-x-auto pb-2" role="tablist" aria-label="Product families" data-reveal-target="item">
+        <button
+          type="button"
+          role="tab"
+          class="filter-chip <%= 'is-active' if @active_category.blank? %>"
+          aria-selected="<%= @active_category.blank? %>"
+          data-catalog-target="chip"
+          data-filter="all"
+          data-action="click->catalog#select"
+        >All products</button>
+
+        <% @categories.each do |key, label| %>
+          <button
+            type="button"
+            role="tab"
+            class="filter-chip <%= 'is-active' if @active_category == key %>"
+            aria-selected="<%= @active_category == key %>"
+            data-catalog-target="chip"
+            data-filter="<%= key %>"
+            data-action="click->catalog#select"
+          ><%= label %></button>
+        <% end %>
+      </div>
+
+      <%# --------------------------------------------------------- Grid %>
+      <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <% Catalog::PRODUCTS.each_with_index do |product, index| %>
+          <%= render "shared/product_card", product: product, index: index %>
+        <% end %>
+      </div>
+
+      <div class="mt-12 hidden rounded-[4px] border border-dashed border-ink-900/20 p-12 text-center dark:border-white/20" data-catalog-target="empty">
+        <p class="font-display text-lg font-bold">No families in this category yet.</p>
+        <p class="mt-2 text-sm text-ink-500 dark:text-ink-400">Try another filter, or send us the specification directly.</p>
+        <%= link_to contact_path, class: "btn-primary mt-6" do %>
+          Send a specification
+          <%= icon "arrow-right" %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------- How to order %>
+  <section class="section border-y border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "02 / Ordering",
+              title: "Three steps from specification to dispatch." %>
+      </div>
+
+      <div class="mt-14 grid gap-6 md:grid-cols-3">
+        <% [
+          [ "01", "Send the schedule", "Grade, section, size, quantity and delivery window. A cutting list helps if you need lengths.", "mail" ],
+          [ "02", "Confirm the quotation", "We confirm availability, price, lead time and whether the item ships from stock or a rolling slot.", "check-circle" ],
+          [ "03", "Track to dispatch", "Cutting, bundling, certification and logistics are coordinated against your programme.", "truck" ]
+        ].each_with_index do |(step, title, body, icon_name), index| %>
+          <div class="reveal panel group transition-colors duration-300 hover:border-ember-500/40" data-reveal-target="item" style="--delay:<%= index * 90 %>ms">
+            <div class="flex items-start justify-between">
+              <span class="index-num"><%= step %></span>
+              <span class="text-ink-300 transition-colors duration-300 group-hover:text-ember-500 dark:text-ink-700">
+                <%= icon icon_name, class: "h-6 w-6" %>
+              </span>
+            </div>
+            <h3 class="mt-10 font-display text-lg font-bold tracking-[-0.02em]"><%= title %></h3>
+            <p class="mt-3 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= body %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%= render "shared/cta",
+        title: "Not sure which section you need?",
+        body: "Describe the application and we will recommend the family, grade and size that fits — then quote it.",
+        primary_label: "Ask the sales desk",
+        primary_path: contact_path,
+        secondary_label: "Plant & facility",
+        secondary_path: plant_path %>
+</div>

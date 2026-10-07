@@ -1,0 +1,44 @@
+<%#
+  Call-to-action band used at the foot of most pages.
+  Locals: title, body, primary_label, primary_path, secondary_label, secondary_path
+%>
+<% secondary_label ||= nil %>
+<% secondary_path ||= nil %>
+<section class="section">
+  <div class="shell">
+    <div class="relative overflow-hidden rounded-[4px] border border-white/10 bg-ink-950 px-6 py-14 text-white sm:px-12 sm:py-16 lg:px-16">
+      <div class="blueprint-grid absolute inset-0 opacity-30"></div>
+      <div class="absolute -right-16 -top-16 h-72 w-72 rounded-full bg-ember-600/25 blur-[90px]"></div>
+
+      <div class="relative grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+        <div>
+          <p class="kicker text-ember-400">Next step</p>
+          <h2 class="heading mt-5 max-w-2xl"><%= title %></h2>
+          <p class="mt-6 max-w-xl text-base leading-8 text-ink-300"><%= body %></p>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row lg:flex-col lg:items-stretch">
+          <%= link_to primary_path, class: "btn-primary justify-center" do %>
+            <%= primary_label %>
+            <%= icon "arrow-right" %>
+          <% end %>
+          <% if secondary_label.present? %>
+            <%= link_to secondary_path, class: "btn-outline justify-center border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950" do %>
+              <%= secondary_label %>
+              <%= icon "arrow-up-right" %>
+            <% end %>
+          <% end %>
+          <div class="mt-2 space-y-2 text-sm text-ink-400">
+            <a href="tel:<%= Catalog::COMPANY[:phone].delete(' ') %>" class="flex items-center gap-3 transition-colors hover:text-ember-400">
+              <%= icon "phone", class: "h-4 w-4 text-ember-500" %>
+              <%= Catalog::COMPANY[:phone] %>
+            </a>
+            <a href="mailto:<%= Catalog::COMPANY[:email] %>" class="flex items-center gap-3 transition-colors hover:text-ember-400">
+              <%= icon "mail", class: "h-4 w-4 text-ember-500" %>
+              <%= Catalog::COMPANY[:email] %>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,15 @@
+<%#
+  Product "blueprint plate" — a dark technical drawing rendered entirely in SVG.
+  Locals:
+    product  — a Catalog::PRODUCTS entry
+    code     — optional plate code shown top-right (defaults to the family index)
+%>
+<% code ||= nil %>
+<div class="plate">
+  <div class="plate-grid"></div>
+  <span class="plate-label"><%= product[:eyebrow] %></span>
+  <span class="plate-code"><%= code || product[:slug].first(3).upcase %></span>
+  <div class="plate-art text-white">
+    <%= render "shared/visuals/#{product[:visual]}" %>
+  </div>
+</div>

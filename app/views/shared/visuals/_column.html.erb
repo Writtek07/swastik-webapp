@@ -1,0 +1,23 @@
+<%# Column stack used on the applications cards. %>
+<svg viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Structural columns">
+  <defs>
+    <linearGradient id="col-face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#8791a3" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <% [ 70, 150, 230 ].each_with_index do |x, i| %>
+    <g opacity="<%= 1 - (i * 0.12) %>">
+      <path d="M<%= x %> 40 L<%= x + 26 %> 34 L<%= x + 26 %> 178 L<%= x %> 184 Z" fill="url(#col-face)"/>
+      <path d="M<%= x + 26 %> 34 L<%= x + 40 %> 38 L<%= x + 40 %> 182 L<%= x + 26 %> 178 Z" fill="#4d5666" fill-opacity="0.85"/>
+      <path d="M<%= x - 8 %> 40 L<%= x + 48 %> 32 L<%= x + 48 %> 44 L<%= x - 8 %> 52 Z" fill="#b3bac7" fill-opacity="0.8"/>
+      <path d="M<%= x - 8 %> 184 L<%= x + 48 %> 176 L<%= x + 48 %> 188 L<%= x - 8 %> 196 Z" fill="#b3bac7" fill-opacity="0.6"/>
+    </g>
+  <% end %>
+
+  <g stroke="#f95711" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.8">
+    <path d="M40 40 L40 196"/>
+    <path d="M34 40 L46 40M34 196 L46 196"/>
+  </g>
+</svg>

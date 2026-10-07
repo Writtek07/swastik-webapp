@@ -1,0 +1,135 @@
+<% content_for :title, page_title("Plant & facility") %>
+<% content_for :description, "Inside the Swastik Enterprise plant: raw material intake, melting, casting, rolling, testing and dispatch." %>
+
+<div data-controller="reveal">
+  <%= render "shared/page_hero",
+        kicker: "Plant & facility",
+        title: "Six stages between scrap and a certified bundle.",
+        lede: "Every tonne we dispatch passes through the same sequence, with a record at each stage. That is what makes a mill test certificate worth the paper it is printed on.",
+        breadcrumb: [ [ "Plant & facility", nil ] ] do %>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to products_path, class: "btn-primary" do %>
+        See what we make
+        <%= icon "arrow-right" %>
+      <% end %>
+      <button
+        type="button"
+        class="btn-outline border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950"
+        data-action="click->video-modal#open"
+      >
+        <%= icon "play", class: "h-3.5 w-3.5" %>
+        Plant walkthrough
+      </button>
+    </div>
+  <% end %>
+
+  <%# ------------------------------------------------------------ Process %>
+  <section class="section">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "01 / The process",
+              title: "Melting, rolling, testing, dispatch.",
+              lede: "Each stage has a defined output and a sign-off, so a problem is caught at the furnace rather than at your site." %>
+      </div>
+
+      <div class="mt-14 space-y-px overflow-hidden rounded-[4px] border border-ink-900/10 bg-ink-900/10 dark:border-white/10 dark:bg-white/10">
+        <% @process.each_with_index do |step, index| %>
+          <div class="reveal group grid gap-6 bg-sand-50 p-7 transition-colors duration-300 hover:bg-white sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-9 dark:bg-ink-950 dark:hover:bg-white/[0.04]" data-reveal-target="item" style="--delay:<%= index * 60 %>ms">
+            <div class="flex items-center gap-5">
+              <span class="font-display text-3xl font-extrabold tracking-[-0.05em] text-ink-200 transition-colors duration-300 group-hover:text-ember-500 dark:text-ink-800"><%= step[:step] %></span>
+              <span class="grid h-12 w-12 shrink-0 place-items-center rounded-[3px] border border-ink-900/10 text-ink-500 transition-colors duration-300 group-hover:border-ember-500/40 group-hover:text-ember-600 dark:border-white/10 dark:text-ink-400 dark:group-hover:text-ember-400">
+                <%= icon step[:icon], class: "h-5 w-5" %>
+              </span>
+            </div>
+            <div>
+              <h3 class="font-display text-lg font-bold tracking-[-0.02em]"><%= step[:title] %></h3>
+              <p class="mt-2 max-w-2xl text-sm leading-6 text-ink-500 dark:text-ink-400"><%= step[:body] %></p>
+            </div>
+            <span class="hidden text-ink-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-ember-500 sm:block dark:text-ink-700">
+              <%= icon "arrow-right", class: "h-5 w-5" %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------- Capabilities %>
+  <section class="section border-y border-ink-900/10 bg-ink-950 text-white dark:border-white/10">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <p class="kicker text-ember-400">02 / Facility capability</p>
+        <h2 class="heading mt-5">What the yard can do before it ships.</h2>
+        <p class="mt-6 max-w-2xl text-base leading-8 text-ink-300">
+          Value is added before dispatch, not after. Cutting, drilling, bundling and certification all happen
+          under our own quality system.
+        </p>
+      </div>
+
+      <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <% @capabilities.each_with_index do |capability, index| %>
+          <div class="reveal rounded-[4px] border border-white/10 bg-white/[0.03] p-7 transition-colors duration-300 hover:border-ember-500/40 hover:bg-white/[0.06]" data-reveal-target="item" style="--delay:<%= (index % 3) * 80 %>ms">
+            <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ember-600 text-white">
+              <%= icon capability[:icon], class: "h-5 w-5" %>
+            </span>
+            <h3 class="mt-5 font-display text-base font-bold tracking-[-0.01em]"><%= capability[:title] %></h3>
+            <p class="mt-2 text-sm leading-6 text-ink-400"><%= capability[:body] %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------ Quality %>
+  <section class="section">
+    <div class="shell grid gap-14 lg:grid-cols-[1fr_1fr] lg:gap-20">
+      <div class="reveal" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "03 / Quality assurance",
+              title: "Tested before it is trusted." %>
+        <p class="lede mt-7">
+          Chemistry, tensile, bend and dimensional checks are run on every heat. Results travel with the
+          material, so your engineer can verify the bundle against the certificate on arrival.
+        </p>
+
+        <dl class="mt-10 divide-y divide-ink-900/10 border-y border-ink-900/10 dark:divide-white/10 dark:border-white/10">
+          <% [
+            [ "Chemistry analysis", "Spectrometer check on carbon, manganese, sulphur and phosphorus." ],
+            [ "Tensile & yield", "Universal testing machine results recorded per heat number." ],
+            [ "Bend & re-bend", "Ductility verification for reinforcement steel." ],
+            [ "Dimensional inspection", "Section dimensions, wall thickness and length tolerance." ]
+          ].each do |title, body| %>
+            <div class="flex gap-5 py-5">
+              <span class="mt-0.5 text-ember-500"><%= icon "check-circle", class: "h-5 w-5" %></span>
+              <div>
+                <dt class="font-display text-sm font-bold tracking-[-0.01em]"><%= title %></dt>
+                <dd class="mt-1 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= body %></dd>
+              </div>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+
+      <div class="reveal grid gap-5 sm:grid-cols-2" data-reveal-target="item" style="--delay:120ms">
+        <% [ [ "beam", "Structural sections" ], [ "rebar", "Reinforcement" ], [ "pipe", "Tubes & pipes" ], [ "plate", "Sheets & plates" ] ].each_with_index do |(visual, label), index| %>
+          <div class="plate <%= index.odd? ? 'sm:mt-8' : '' %>">
+            <div class="plate-grid"></div>
+            <span class="plate-label"><%= label %></span>
+            <div class="plate-art text-white">
+              <%= render "shared/visuals/#{visual}" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%= render "shared/cta",
+        title: "Book a plant walkthrough.",
+        body: "Bring your QA team. We will show you the furnace, the mill and the test bench, and answer anything the certificate does not.",
+        primary_label: "Arrange a visit",
+        primary_path: contact_path,
+        secondary_label: "Clients & approvals",
+        secondary_path: clients_path %>
+</div>

@@ -1,0 +1,13 @@
+<%#
+  Section heading block.
+  Locals: kicker, title, lede (optional), align (optional: "center")
+%>
+<% align ||= "left" %>
+<% lede ||= nil %>
+<div class="<%= align == 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl' %>">
+  <p class="kicker <%= 'kicker--plain justify-center' if align == 'center' %>"><%= kicker %></p>
+  <h2 class="heading mt-5"><%= title %></h2>
+  <% if lede.present? %>
+    <p class="lede mt-6"><%= lede %></p>
+  <% end %>
+</div>

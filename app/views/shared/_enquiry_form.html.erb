@@ -1,0 +1,58 @@
+<%#
+  Enquiry form. Posts to EnquiriesController#create.
+  Locals: product_key (optional preselect), compact (optional boolean)
+%>
+<% product_key ||= nil %>
+<% compact ||= false %>
+
+<div class="panel" data-controller="enquiry">
+  <%= form_with model: Enquiry.new, url: enquiries_path, class: "space-y-5", data: { enquiry_target: "form", action: "submit->enquiry#submit" } do |form| %>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <label class="field">
+        <span>Full name *</span>
+        <%= form.text_field :name, required: true, placeholder: "Your name", autocomplete: "name" %>
+      </label>
+      <label class="field">
+        <span>Company</span>
+        <%= form.text_field :company, placeholder: "Company name", autocomplete: "organization" %>
+      </label>
+      <label class="field">
+        <span>Email *</span>
+        <%= form.email_field :email, required: true, placeholder: "you@company.com", autocomplete: "email" %>
+      </label>
+      <label class="field">
+        <span>Phone</span>
+        <%= form.telephone_field :phone, placeholder: "+91", autocomplete: "tel" %>
+      </label>
+      <label class="field sm:col-span-2">
+        <span>Product family</span>
+        <%= form.select :product_key, options_for_select(enquiry_product_options, product_key), { include_blank: "Select a product family" } %>
+      </label>
+      <% unless compact %>
+        <label class="field">
+          <span>Quantity</span>
+          <%= form.text_field :quantity, placeholder: "e.g. 24 tonnes" %>
+        </label>
+        <label class="field">
+          <span>Delivery location</span>
+          <%= form.text_field :delivery_location, placeholder: "City / site" %>
+        </label>
+      <% end %>
+      <label class="field sm:col-span-2">
+        <span>Requirement details *</span>
+        <%= form.text_area :message, rows: compact ? 4 : 5, required: true,
+              placeholder: "Grade, section, dimensions, quantity and the delivery timeline you are working to." %>
+      </label>
+    </div>
+
+    <div class="flex flex-col gap-4 border-t border-ink-900/10 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+      <p class="text-xs leading-5 text-ink-500 dark:text-ink-400">
+        We reply within one working day. Your details are used only to prepare this quotation.
+      </p>
+      <button type="submit" class="btn-primary shrink-0" data-enquiry-target="submit">
+        <span data-enquiry-target="submitLabel">Send enquiry</span>
+        <%= icon "arrow-right" %>
+      </button>
+    </div>
+  <% end %>
+</div>

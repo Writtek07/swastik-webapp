@@ -1,0 +1,16 @@
+<%#
+  Statistics band.
+  Locals: stats (array of Catalog::STATS entries), tone ("light" | "dark")
+%>
+<% tone ||= "light" %>
+<div class="grid gap-px overflow-hidden rounded-[4px] border <%= tone == 'dark' ? 'border-white/10 bg-white/10' : 'border-ink-900/10 bg-ink-900/10 dark:border-white/10 dark:bg-white/10' %> sm:grid-cols-2 lg:grid-cols-4">
+  <% stats.each_with_index do |stat, index| %>
+    <div class="reveal <%= tone == 'dark' ? 'bg-ink-950' : 'bg-sand-50 dark:bg-ink-950' %> p-7 sm:p-8" data-reveal-target="item" style="--delay:<%= index * 90 %>ms">
+      <p class="stat-value <%= tone == 'dark' ? 'text-white' : 'text-ink-950 dark:text-white' %>">
+        <span data-counter="<%= stat[:value] %>" data-suffix="<%= stat[:suffix] %>">0<%= stat[:suffix] %></span>
+      </p>
+      <p class="stat-label"><%= stat[:label] %></p>
+      <p class="mt-3 text-xs leading-5 <%= tone == 'dark' ? 'text-ink-400' : 'text-ink-500 dark:text-ink-400' %>"><%= stat[:note] %></p>
+    </div>
+  <% end %>
+</div>

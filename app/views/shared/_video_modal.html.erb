@@ -1,0 +1,41 @@
+<%#
+  Video lightbox. Any element on the page can open it by carrying
+  `data-action="click->video-modal#open"` plus `data-video-modal-url-value`
+  (a YouTube/Vimeo embed URL) or `data-video-modal-src-value` (a local file).
+
+  The controller lives on <body> so triggers anywhere in the page can reach it.
+%>
+<div
+  class="fixed inset-0 z-[80] hidden items-center justify-center bg-ink-950/85 p-4 backdrop-blur-md sm:p-8"
+  data-video-modal-target="modal"
+  data-action="click->video-modal#closeOnBackdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Company film"
+>
+  <div class="relative w-full max-w-5xl">
+    <button
+      type="button"
+      class="icon-btn absolute -top-12 right-0 border-white/25 text-white hover:border-white hover:text-white"
+      aria-label="Close video"
+      data-action="click->video-modal#close"
+    >
+      <%= icon "close", class: "h-5 w-5" %>
+    </button>
+
+    <div class="video-frame aspect-video w-full">
+      <div class="video-fallback" data-video-modal-target="fallback">
+        <div class="absolute inset-0 grid place-items-center text-center">
+          <div>
+            <p class="font-display text-2xl font-extrabold tracking-[-0.03em] text-white">Company film</p>
+            <p class="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-300">
+              Drop the plant walkthrough MP4 into <code class="text-ember-400">app/assets/videos</code>
+              and set <code class="text-ember-400">data-video-modal-src-value</code> to play it here.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div data-video-modal-target="embed" class="absolute inset-0 hidden"></div>
+    </div>
+  </div>
+</div>

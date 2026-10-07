@@ -1,0 +1,80 @@
+<footer class="relative z-10 mt-24 border-t border-ink-900/10 bg-ink-950 text-ink-300 dark:border-white/10">
+  <div class="shell grid gap-12 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:py-20">
+    <div>
+      <div class="flex items-center gap-3">
+        <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ember-600 text-white">
+          <%= icon "bolt", class: "h-5 w-5", stroke: 1.8 %>
+        </span>
+        <span class="leading-none">
+          <span class="block font-display text-[15px] font-extrabold uppercase tracking-[0.2em] text-white">Swastik</span>
+          <span class="mt-1 block text-[9px] font-bold uppercase tracking-[0.28em] text-ink-400">Enterprise · Steel</span>
+        </span>
+      </div>
+      <p class="mt-6 max-w-sm text-sm leading-7 text-ink-400"><%= Catalog::COMPANY[:summary] %></p>
+      <div class="mt-6 flex gap-2">
+        <% Catalog::COMPANY[:social].each do |social| %>
+          <%= link_to social[:url], class: "icon-btn border-white/15 text-ink-300 hover:border-white/40 hover:text-white",
+                target: "_blank", rel: "noopener noreferrer", aria: { label: social[:label] } do %>
+            <%= icon social[:label].downcase, class: "h-4 w-4" %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div>
+      <p class="micro text-ink-500">Company</p>
+      <ul class="mt-5 space-y-3 text-sm">
+        <li><%= link_to "Who we are", about_path, class: "transition-colors hover:text-ember-400" %></li>
+        <li><%= link_to "Plant & facility", plant_path, class: "transition-colors hover:text-ember-400" %></li>
+        <li><%= link_to "Clients & approvals", clients_path, class: "transition-colors hover:text-ember-400" %></li>
+        <li><%= link_to "Contact us", contact_path, class: "transition-colors hover:text-ember-400" %></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="micro text-ink-500">Products</p>
+      <ul class="mt-5 space-y-3 text-sm">
+        <% Catalog::PRODUCTS.first(6).each do |product| %>
+          <li><%= link_to product[:title], product_path_for(product), class: "transition-colors hover:text-ember-400" %></li>
+        <% end %>
+        <li><%= link_to "All products", products_path, class: "font-semibold text-ember-400" %></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="micro text-ink-500">Get in touch</p>
+      <ul class="mt-5 space-y-4 text-sm">
+        <li class="flex items-start gap-3">
+          <%= icon "pin", class: "mt-0.5 h-4 w-4 shrink-0 text-ember-500" %>
+          <span><%= Catalog::COMPANY[:address] %></span>
+        </li>
+        <li class="flex items-start gap-3">
+          <%= icon "phone", class: "mt-0.5 h-4 w-4 shrink-0 text-ember-500" %>
+          <span>
+            <a href="tel:<%= Catalog::COMPANY[:phone].delete(' ') %>" class="transition-colors hover:text-ember-400"><%= Catalog::COMPANY[:phone] %></a><br>
+            <a href="tel:<%= Catalog::COMPANY[:phone_alt].delete(' ') %>" class="transition-colors hover:text-ember-400"><%= Catalog::COMPANY[:phone_alt] %></a>
+          </span>
+        </li>
+        <li class="flex items-start gap-3">
+          <%= icon "mail", class: "mt-0.5 h-4 w-4 shrink-0 text-ember-500" %>
+          <a href="mailto:<%= Catalog::COMPANY[:email] %>" class="transition-colors hover:text-ember-400"><%= Catalog::COMPANY[:email] %></a>
+        </li>
+      </ul>
+      <%= link_to contact_path, class: "btn-primary mt-6 w-full" do %>
+        Start an enquiry
+        <%= icon "arrow-right" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="shell flex flex-col gap-3 py-6 text-xs text-ink-500 sm:flex-row sm:items-center sm:justify-between">
+      <p>© <%= current_year %> <%= Catalog::COMPANY[:legal_name] %>. All rights reserved.</p>
+      <p class="flex items-center gap-4">
+        <span>Established <%= Catalog::COMPANY[:established] %></span>
+        <span class="hidden h-3 w-px bg-white/15 sm:block"></span>
+        <span>Raipur, Chhattisgarh</span>
+      </p>
+    </div>
+  </div>
+</footer>

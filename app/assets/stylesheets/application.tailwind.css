@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* Tailwind v4 defaults `dark:` to prefers-color-scheme. The theme toggle sets a
+   `.dark` class on <html>, so bind the variant to that class instead. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   A warm graphite + ember palette. Surfaces are never pure white or pure black
+   so long-form industrial pages stay easy on the eye.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-ink-50: #f6f7f9;
+  --color-ink-100: #eceef2;
+  --color-ink-200: #d7dbe3;
+  --color-ink-300: #b3bac7;
+  --color-ink-400: #8791a3;
+  --color-ink-500: #667085;
+  --color-ink-600: #4d5666;
+  --color-ink-700: #3a4250;
+  --color-ink-800: #232a35;
+  --color-ink-900: #141922;
+  --color-ink-950: #0b0e14;
+
+  --color-ember-50: #fff5ed;
+  --color-ember-100: #ffe8d4;
+  --color-ember-200: #ffcda8;
+  --color-ember-300: #ffa971;
+  --color-ember-400: #ff7a38;
+  --color-ember-500: #f95711;
+  --color-ember-600: #ea3d07;
+  --color-ember-700: #c22b08;
+  --color-ember-800: #9a240f;
+  --color-ember-900: #7c2110;
+
+  --color-sand-50: #faf8f5;
+  --color-sand-100: #f4f1ec;
+  --color-sand-200: #e8e3da;
+
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@import "./site.css";

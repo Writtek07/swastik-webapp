@@ -1,0 +1,26 @@
+<%# Equal angle section, stacked to suggest a bundle. %>
+<svg viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Angle section">
+  <defs>
+    <linearGradient id="ang-face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#8791a3" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <%# Three stacked angles, offset for depth %>
+  <% [ 0, 34, 68 ].each_with_index do |offset, i| %>
+    <g transform="translate(0 <%= offset %>)" opacity="<%= 1 - (i * 0.22) %>">
+      <path d="M60 40 L96 32 L96 96 L60 104 Z" fill="url(#ang-face)"/>
+      <path d="M60 104 L96 96 L232 128 L196 136 Z" fill="url(#ang-face)"/>
+      <path d="M96 32 L110 36 L110 100 L96 96 Z" fill="#4d5666" fill-opacity="0.8"/>
+      <path d="M196 136 L232 128 L232 142 L196 150 Z" fill="#667085" fill-opacity="0.75"/>
+    </g>
+  <% end %>
+
+  <%# Leg dimension %>
+  <g stroke="#f95711" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.85">
+    <path d="M46 40 L46 104"/>
+    <path d="M40 40 L52 40M40 104 L52 104"/>
+  </g>
+  <text x="32" y="76" fill="#ffa971" font-size="9" font-family="monospace" transform="rotate(-90 32 76)">A</text>
+</svg>

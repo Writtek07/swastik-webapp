@@ -1,0 +1,135 @@
+<% content_for :title, page_title(@product[:title]) %>
+<% content_for :description, @product[:summary] %>
+
+<div data-controller="reveal">
+  <%= render "shared/page_hero",
+        kicker: @product[:eyebrow],
+        title: @product[:title],
+        lede: @product[:summary],
+        breadcrumb: [ [ "Products", products_path ], [ @product[:title], nil ] ] do %>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to contact_path(product: @product[:key]), class: "btn-primary" do %>
+        Request a quotation
+        <%= icon "arrow-right" %>
+      <% end %>
+      <%= link_to products_path(category: @product[:key]), class: "btn-outline border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950" do %>
+        More <%= @product[:category] %>
+        <%= icon "arrow-up-right" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <section class="section">
+    <div class="shell grid gap-12 lg:grid-cols-[1.1fr_.9fr] lg:gap-16">
+      <%# ------------------------------------------------------ Overview %>
+      <div class="reveal" data-reveal-target="item">
+        <div class="plate !aspect-[16/10]">
+          <div class="plate-grid"></div>
+          <span class="plate-label"><%= @product[:eyebrow] %></span>
+          <span class="plate-code"><%= @product[:slug].first(3).upcase %></span>
+          <div class="plate-art text-white">
+            <%= render "shared/visuals/#{@product[:visual]}" %>
+          </div>
+        </div>
+
+        <div class="mt-10">
+          <p class="kicker">01 / Overview</p>
+          <h2 class="heading mt-5">About this family</h2>
+          <p class="lede mt-6"><%= @product[:description] %></p>
+
+          <div class="mt-8 flex flex-wrap gap-2">
+            <% @product[:tags].each do |tag| %>
+              <span class="tag tag-ember"><%= tag %></span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="mt-12">
+          <p class="kicker">02 / Typical applications</p>
+          <ul class="mt-6 grid gap-3 sm:grid-cols-2">
+            <% @product[:applications].each do |application| %>
+              <li class="flex items-start gap-3 rounded-[4px] border border-ink-900/10 bg-sand-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+                <span class="mt-0.5 shrink-0 text-ember-500"><%= icon "check", class: "h-4 w-4" %></span>
+                <span class="text-sm font-semibold leading-6"><%= application %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <%# -------------------------------------------------- Specification %>
+      <div class="reveal space-y-6" data-reveal-target="item" style="--delay:120ms">
+        <div class="panel">
+          <p class="kicker">Specification</p>
+          <dl class="mt-6 divide-y divide-ink-900/10 dark:divide-white/10">
+            <% @product[:specs].each do |label, value| %>
+              <div class="flex items-start justify-between gap-6 py-4">
+                <dt class="text-[11px] font-bold uppercase tracking-[0.16em] text-ink-500 dark:text-ink-400"><%= label %></dt>
+                <dd class="text-right text-sm font-semibold"><%= value %></dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+
+        <div class="panel">
+          <p class="kicker">Available sizes</p>
+          <p class="mt-4 text-sm leading-6 text-ink-500 dark:text-ink-400">
+            Common sizes held or rolled. Other sections can be produced against a confirmed schedule.
+          </p>
+          <div class="mt-5 flex flex-wrap gap-2">
+            <% @product[:sizes].each do |size| %>
+              <span class="rounded-[3px] border border-ink-900/12 bg-sand-100 px-3 py-2 font-mono text-xs font-semibold dark:border-white/12 dark:bg-white/[0.05]"><%= size %></span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="panel-dark">
+          <p class="kicker text-ember-400">Need a price?</p>
+          <p class="mt-5 font-display text-xl font-bold leading-snug tracking-[-0.02em]">
+            Send the quantity and delivery location and we will quote it.
+          </p>
+          <div class="mt-6 space-y-3">
+            <%= link_to contact_path(product: @product[:key]), class: "btn-primary w-full justify-center" do %>
+              Request a quotation
+              <%= icon "arrow-right" %>
+            <% end %>
+            <a href="tel:<%= Catalog::COMPANY[:phone].delete(' ') %>" class="btn-outline w-full justify-center border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950">
+              <%= icon "phone" %>
+              <%= Catalog::COMPANY[:phone] %>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# --------------------------------------------------------- Related %>
+  <section class="section border-t border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="shell">
+      <div class="reveal flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" data-reveal-target="item">
+        <div>
+          <p class="kicker">03 / Related families</p>
+          <h2 class="heading mt-5">Often quoted together</h2>
+        </div>
+        <%= link_to products_path, class: "link-arrow shrink-0" do %>
+          All products
+          <%= icon "arrow-up-right" %>
+        <% end %>
+      </div>
+
+      <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <% @related.each_with_index do |product, index| %>
+          <%= render "shared/product_card", product: product, index: index %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%= render "shared/cta",
+        title: "Ready to specify #{@product[:title].downcase}?",
+        body: "Share the grade, size, quantity and delivery window. We will confirm availability and lead time.",
+        primary_label: "Start an enquiry",
+        primary_path: contact_path(product: @product[:key]),
+        secondary_label: "Plant & facility",
+        secondary_path: plant_path %>
+</div>

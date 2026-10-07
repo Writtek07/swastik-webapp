@@ -1,0 +1,20 @@
+<%# Flash messages rendered as a dismissible strip under the navbar. %>
+<% if flash.any? %>
+  <div class="shell pt-6">
+    <% flash.each do |type, message| %>
+      <% next if message.blank? %>
+      <% success = type.to_s == "notice" %>
+      <div
+        class="flex items-start gap-3 rounded-[3px] border px-5 py-4 text-sm font-medium <%= success ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300' : 'border-ember-500/30 bg-ember-500/10 text-ember-800 dark:text-ember-300' %>"
+        role="status"
+        data-controller="dismiss"
+      >
+        <%= icon(success ? "check-circle" : "shield", class: "mt-0.5 h-4 w-4 shrink-0") %>
+        <p class="flex-1"><%= message %></p>
+        <button type="button" class="shrink-0 opacity-60 transition-opacity hover:opacity-100" aria-label="Dismiss" data-action="click->dismiss#close">
+          <%= icon "close", class: "h-4 w-4" %>
+        </button>
+      </div>
+    <% end %>
+  </div>
+<% end %>

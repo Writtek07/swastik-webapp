@@ -1,0 +1,316 @@
+<% content_for :title, page_title %>
+<% content_for :description, "Swastik Enterprise manufactures and supplies structural steel, TMT reinforcement, tubes, pipes, sheets and plates from Raipur, Chhattisgarh." %>
+
+<div data-controller="reveal">
+
+  <%# ---------------------------------------------------------------- Hero %>
+  <section
+    class="relative isolate overflow-hidden bg-ink-950 text-white"
+    data-controller="hero-video"
+    data-hero-video-src-value=""
+  >
+    <div class="absolute inset-0" aria-hidden="true">
+      <%# Background video. Drop an MP4 into app/assets/videos and set
+          data-hero-video-src-value above to switch the fallback off. The
+          <source> is injected by the controller so no request is made while
+          the value is empty. %>
+      <video
+        class="absolute inset-0 h-full w-full object-cover opacity-70"
+        data-hero-video-target="video"
+        autoplay muted loop playsinline preload="metadata"
+      ></video>
+
+      <div class="video-fallback transition-opacity duration-1000" data-hero-video-target="fallback">
+        <div class="absolute inset-0 grid place-items-center opacity-[0.18]">
+          <svg viewBox="0 0 1200 600" class="h-full w-full" fill="none" aria-hidden="true">
+            <g stroke="#ffffff" stroke-width="1.5">
+              <path d="M0 480 L1200 300"/>
+              <path d="M0 520 L1200 340"/>
+              <path d="M120 600 L120 120M420 600 L420 60M720 600 L720 0M1020 600 L1020 -60"/>
+              <path d="M0 300 L1200 120"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/40"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-ink-950/60"></div>
+    </div>
+
+    <div class="shell relative flex min-h-[calc(100svh-4.5rem)] flex-col justify-center py-20 lg:py-28">
+      <div class="max-w-4xl">
+        <p class="reveal inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-ink-200 backdrop-blur-sm" data-reveal-target="item">
+          <span class="dot animate-pulse"></span>
+          Manufacturing & supply since <%= Catalog::COMPANY[:established] %>
+        </p>
+
+        <h1 class="display reveal mt-8 text-white" data-reveal-target="item" style="--delay:80ms">
+          Steel that holds up<br>
+          <span class="text-ember-500">under everything.</span>
+        </h1>
+
+        <p class="reveal mt-8 max-w-2xl text-base leading-8 text-ink-300 sm:text-lg" data-reveal-target="item" style="--delay:160ms">
+          Structural sections, TMT reinforcement, tubes, pipes, sheets and plates — rolled, tested and
+          dispatched from Raipur to infrastructure, industrial and fabrication projects across Central India.
+        </p>
+
+        <div class="reveal mt-10 flex flex-col gap-3 sm:flex-row" data-reveal-target="item" style="--delay:240ms">
+          <%= link_to products_path, class: "btn-primary" do %>
+            Explore the catalogue
+            <%= icon "arrow-right" %>
+          <% end %>
+          <button
+            type="button"
+            class="btn-outline border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950"
+            data-action="click->video-modal#open"
+          >
+            <%= icon "play", class: "h-3.5 w-3.5" %>
+            Watch the plant film
+          </button>
+        </div>
+      </div>
+
+      <%# Hero footer strip: quick facts + scroll cue %>
+      <div class="reveal mt-16 grid gap-8 border-t border-white/10 pt-8 sm:grid-cols-2 lg:mt-24 lg:grid-cols-4" data-reveal-target="item" style="--delay:320ms">
+        <% Catalog::STATS.first(3).each do |stat| %>
+          <div>
+            <p class="font-display text-3xl font-extrabold tracking-[-0.04em] text-white">
+              <span data-counter="<%= stat[:value] %>" data-suffix="<%= stat[:suffix] %>">0<%= stat[:suffix] %></span>
+            </p>
+            <p class="mt-2 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-400"><%= stat[:label] %></p>
+          </div>
+        <% end %>
+        <div class="flex items-end justify-start lg:justify-end">
+          <a href="#intro" class="group inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-300 transition-colors hover:text-white">
+            Scroll
+            <span class="grid h-9 w-9 place-items-center rounded-full border border-white/20 transition-transform duration-300 group-hover:translate-y-1">
+              <%= icon "arrow-down", class: "h-4 w-4" %>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------- Marquee %>
+  <section class="marquee-wrap overflow-hidden border-b border-ink-900/10 bg-sand-100 py-5 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="marquee">
+      <% 2.times do %>
+        <% [ "Structural steel", "TMT reinforcement", "ERW tubes & pipes", "MS pipes", "Sheets & plates",
+             "Cut-to-length", "Mill test certificates", "Project supply" ].each do |item| %>
+          <span class="flex items-center gap-12 text-[11px] font-bold uppercase tracking-[0.28em] text-ink-500 dark:text-ink-400">
+            <%= item %>
+            <span class="h-1 w-1 rounded-full bg-ember-500"></span>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <%# --------------------------------------------------------------- Intro %>
+  <section id="intro" class="section scroll-mt-24">
+    <div class="shell grid gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
+      <div class="reveal" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "01 / Who we are",
+              title: "A steel house built on specification, not guesswork." %>
+        <p class="lede mt-7">
+          We started in <%= Catalog::COMPANY[:established] %> as a trading house serving local fabricators.
+          Three decades on we melt, roll, test and dispatch our own sections — which means the grade on the
+          certificate is the grade in the bundle.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <%= link_to about_path, class: "btn-dark" do %>
+            Our story
+            <%= icon "arrow-right" %>
+          <% end %>
+          <%= link_to plant_path, class: "btn-outline" do %>
+            Inside the plant
+            <%= icon "arrow-up-right" %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="reveal grid gap-5 sm:grid-cols-2" data-reveal-target="item" style="--delay:120ms">
+        <% Catalog::CAPABILITIES.first(4).each do |capability| %>
+          <div class="panel group transition-colors duration-300 hover:border-ember-500/40">
+            <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ember-500/10 text-ember-600 transition-colors duration-300 group-hover:bg-ember-600 group-hover:text-white dark:text-ember-400">
+              <%= icon capability[:icon], class: "h-5 w-5" %>
+            </span>
+            <h3 class="mt-5 font-display text-base font-bold tracking-[-0.01em]"><%= capability[:title] %></h3>
+            <p class="mt-2 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= capability[:body] %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------ Products %>
+  <section class="section border-y border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="shell">
+      <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+        <div class="reveal" data-reveal-target="item">
+          <%= render "shared/section_heading",
+                kicker: "02 / Product families",
+                title: "Nine families. One supply desk.",
+                lede: "Every family is stocked in the sizes buyers actually specify, with cut-to-length and certification available as standard." %>
+        </div>
+        <%= link_to products_path, class: "btn-outline reveal shrink-0", data: { reveal_target: "item" } do %>
+          View full catalogue
+          <%= icon "arrow-right" %>
+        <% end %>
+      </div>
+
+      <div class="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <% @featured_products.each_with_index do |product, index| %>
+          <%= render "shared/product_card", product: product, index: index %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ---------------------------------------------------------- Capability %>
+  <section class="section">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "03 / Capability",
+              title: "From enquiry to dispatch, without the gaps.",
+              lede: "Six stages, each with an owner and a record — so you always know where your material is." %>
+      </div>
+
+      <div class="mt-14 grid gap-px overflow-hidden rounded-[4px] border border-ink-900/10 bg-ink-900/10 sm:grid-cols-2 lg:grid-cols-3 dark:border-white/10 dark:bg-white/10">
+        <% @process.each_with_index do |step, index| %>
+          <div class="reveal group relative bg-sand-50 p-8 transition-colors duration-300 hover:bg-white dark:bg-ink-950 dark:hover:bg-white/[0.04]" data-reveal-target="item" style="--delay:<%= (index % 3) * 80 %>ms">
+            <div class="flex items-start justify-between">
+              <span class="index-num"><%= step[:step] %></span>
+              <span class="text-ink-300 transition-colors duration-300 group-hover:text-ember-500 dark:text-ink-700">
+                <%= icon step[:icon], class: "h-6 w-6" %>
+              </span>
+            </div>
+            <h3 class="mt-10 font-display text-lg font-bold tracking-[-0.02em]"><%= step[:title] %></h3>
+            <p class="mt-3 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= step[:body] %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# --------------------------------------------------------- Applications %>
+  <section class="section border-y border-ink-900/10 bg-ink-950 text-white dark:border-white/10">
+    <div class="shell">
+      <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+        <div class="reveal" data-reveal-target="item">
+          <p class="kicker text-ember-400">04 / Where it goes</p>
+          <h2 class="heading mt-5">Materials for the places where steel does the heavy lifting.</h2>
+          <p class="mt-6 max-w-lg text-base leading-8 text-ink-300">
+            From plant sheds and crane gantries to bridge decks and housing frames — the same discipline
+            applies to a single bundle and a staged project release.
+          </p>
+          <%= link_to clients_path, class: "btn-outline mt-9 border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950" do %>
+            See who we supply
+            <%= icon "arrow-right" %>
+          <% end %>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <% @applications.each_with_index do |application, index| %>
+            <article class="reveal group relative overflow-hidden rounded-[4px] border border-white/10 bg-white/[0.03] p-6 transition-colors duration-300 hover:border-ember-500/40 hover:bg-white/[0.06]" data-reveal-target="item" style="--delay:<%= index * 80 %>ms">
+              <div class="plate mb-6 !aspect-[16/10]">
+                <div class="plate-grid"></div>
+                <div class="plate-art text-white">
+                  <%= render "shared/visuals/#{application[:visual]}" %>
+                </div>
+              </div>
+              <h3 class="font-display text-lg font-bold tracking-[-0.02em]"><%= application[:title] %></h3>
+              <p class="mt-2 text-sm leading-6 text-ink-400"><%= application[:body] %></p>
+            </article>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# --------------------------------------------------------------- Stats %>
+  <section class="section">
+    <div class="shell">
+      <div class="reveal mb-12 max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "05 / By the numbers",
+              title: "Scale you can plan around." %>
+      </div>
+      <%= render "shared/stats", stats: @stats %>
+    </div>
+  </section>
+
+  <%# -------------------------------------------------------------- Values %>
+  <section class="section border-y border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "06 / What we stand for",
+              title: "Six commitments we do not negotiate on." %>
+      </div>
+
+      <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <% @values.each_with_index do |value, index| %>
+          <div class="reveal panel group transition-colors duration-300 hover:border-ember-500/40" data-reveal-target="item" style="--delay:<%= (index % 3) * 80 %>ms">
+            <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ink-950 text-white transition-colors duration-300 group-hover:bg-ember-600 dark:bg-white dark:text-ink-950 dark:group-hover:bg-ember-600 dark:group-hover:text-white">
+              <%= icon value[:icon], class: "h-5 w-5" %>
+            </span>
+            <h3 class="mt-5 font-display text-lg font-bold tracking-[-0.02em]"><%= value[:title] %></h3>
+            <p class="mt-3 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= value[:body] %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# --------------------------------------------------------------- FAQ %>
+  <section class="section">
+    <div class="shell grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+      <div class="reveal" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "07 / Questions",
+              title: "The things buyers ask first." %>
+        <p class="body-text mt-6">
+          Still unsure? Send the schedule and we will come back with the most economical way to supply it.
+        </p>
+        <%= link_to contact_path, class: "btn-dark mt-8" do %>
+          Talk to the sales desk
+          <%= icon "arrow-right" %>
+        <% end %>
+      </div>
+
+      <div class="reveal divide-y divide-ink-900/10 border-y border-ink-900/10 dark:divide-white/10 dark:border-white/10" data-reveal-target="item" data-controller="accordion">
+        <% @faqs.each_with_index do |faq, index| %>
+          <div>
+            <button
+              type="button"
+              class="accordion-trigger flex w-full items-center justify-between gap-6 py-6 text-left"
+              aria-expanded="false"
+              data-accordion-target="trigger"
+              data-action="click->accordion#toggle"
+            >
+              <span class="font-display text-base font-bold tracking-[-0.01em] sm:text-lg"><%= faq[:question] %></span>
+              <%= icon "plus", class: "h-5 w-5 shrink-0 text-ember-500" %>
+            </button>
+            <div class="accordion-panel" data-accordion-target="panel" data-open="false">
+              <div>
+                <p class="pb-6 pr-10 text-sm leading-7 text-ink-500 dark:text-ink-400"><%= faq[:answer] %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%= render "shared/cta",
+        title: "Send us the schedule. We will send back a number.",
+        body: "Share the grade, section, quantity and delivery window. Stocked items are usually quoted the same working day.",
+        primary_label: "Start an enquiry",
+        primary_path: contact_path,
+        secondary_label: "Browse products",
+        secondary_path: products_path %>
+</div>

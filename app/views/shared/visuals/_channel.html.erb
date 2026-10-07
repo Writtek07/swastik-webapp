@@ -1,0 +1,28 @@
+<%# C-channel section in isometric projection. %>
+<svg viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Channel section">
+  <defs>
+    <linearGradient id="ch-face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#8791a3" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <%# Web (vertical) %>
+  <path d="M70 40 L100 34 L100 186 L70 192 Z" fill="url(#ch-face)"/>
+  <path d="M100 34 L114 38 L114 190 L100 186 Z" fill="#4d5666" fill-opacity="0.85"/>
+
+  <%# Top flange %>
+  <path d="M70 40 L100 34 L230 66 L200 72 Z" fill="url(#ch-face)"/>
+  <path d="M200 72 L230 66 L230 82 L200 88 Z" fill="#667085" fill-opacity="0.8"/>
+
+  <%# Bottom flange %>
+  <path d="M70 192 L100 186 L230 154 L200 160 Z" fill="url(#ch-face)"/>
+  <path d="M200 160 L230 154 L230 170 L200 176 Z" fill="#667085" fill-opacity="0.8"/>
+
+  <%# Depth dimension %>
+  <g stroke="#f95711" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.85">
+    <path d="M56 40 L56 192"/>
+    <path d="M50 40 L62 40M50 192 L62 192"/>
+  </g>
+  <text x="42" y="122" fill="#ffa971" font-size="9" font-family="monospace" transform="rotate(-90 42 122)">D</text>
+</svg>

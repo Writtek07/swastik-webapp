@@ -1,0 +1,552 @@
+/* ===========================================================================
+   Swastik Enterprise — site design system
+   Imported from application.tailwind.css, so Tailwind processes every @apply.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Base
+--------------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-sand-50 font-sans text-ink-900 antialiased dark:bg-ink-950 dark:text-ink-50;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    @apply bg-ember-500/25 text-ember-900 dark:text-ember-100;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ember-500;
+  }
+
+  /* Thin, industrial scrollbar. */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { @apply bg-sand-100 dark:bg-ink-900; }
+  ::-webkit-scrollbar-thumb { @apply bg-ink-300 dark:bg-ink-700; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-ember-500; }
+}
+
+/* ---------------------------------------------------------------------------
+   Texture — a faint grain plus a blueprint grid. Both are decorative and sit
+   behind content so they never intercept pointer events.
+--------------------------------------------------------------------------- */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+}
+
+.blueprint-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-ink-900) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-ink-900) 6%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.dark .blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+}
+
+/* Diagonal hatch used on dark panels and image placeholders. */
+.hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.07) 0 1px,
+    transparent 1px 9px
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Layout helpers
+--------------------------------------------------------------------------- */
+.shell {
+  @apply mx-auto w-full max-w-[84rem] px-5 sm:px-8 lg:px-12;
+}
+
+.section {
+  @apply relative py-20 sm:py-24 lg:py-32;
+}
+
+.rule {
+  @apply h-px w-full bg-ink-900/10 dark:bg-white/10;
+}
+
+/* ---------------------------------------------------------------------------
+   Typography
+--------------------------------------------------------------------------- */
+.kicker {
+  @apply inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.28em] text-ember-600 dark:text-ember-400;
+}
+
+.kicker::before {
+  content: "";
+  @apply h-px w-8 bg-ember-500;
+}
+
+.kicker--plain::before { content: none; }
+
+.display {
+  @apply font-display text-[2.6rem] font-extrabold leading-[0.95] tracking-[-0.035em] sm:text-6xl lg:text-[4.5rem];
+}
+
+.heading {
+  @apply font-display text-[2rem] font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-[2.75rem] lg:text-[3.25rem];
+}
+
+.subheading {
+  @apply font-display text-xl font-bold tracking-[-0.02em] sm:text-2xl;
+}
+
+.lede {
+  @apply text-base leading-8 text-ink-600 sm:text-lg dark:text-ink-300;
+}
+
+.body-text {
+  @apply text-[0.95rem] leading-7 text-ink-600 dark:text-ink-300;
+}
+
+.micro {
+  @apply text-[10px] font-bold uppercase tracking-[0.22em] text-ink-400 dark:text-ink-500;
+}
+
+.accent-underline {
+  @apply relative inline-block;
+}
+
+.accent-underline::after {
+  content: "";
+  @apply absolute -bottom-1 left-0 h-[3px] w-full bg-ember-500;
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons — squared-off, uppercase, with a sliding arrow.
+   The base is a shared selector list rather than an @apply of `.btn`, because
+   Tailwind v4 only lets @apply reference real utilities.
+--------------------------------------------------------------------------- */
+.btn,
+.btn-primary,
+.btn-dark,
+.btn-outline,
+.btn-ghost {
+  @apply relative inline-flex items-center justify-center gap-2.5 rounded-[3px] px-6 py-3.5
+         text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300
+         disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.btn svg,
+.btn-primary svg,
+.btn-dark svg,
+.btn-outline svg,
+.btn-ghost svg {
+  @apply h-3.5 w-3.5 shrink-0 transition-transform duration-300;
+}
+
+.btn:hover svg,
+.btn-primary:hover svg,
+.btn-dark:hover svg,
+.btn-outline:hover svg,
+.btn-ghost:hover svg {
+  transform: translateX(3px);
+}
+
+.btn-primary {
+  @apply bg-ember-600 text-white shadow-[0_10px_30px_-12px] shadow-ember-600/60 hover:bg-ember-500;
+}
+
+.btn-dark {
+  @apply bg-ink-900 text-white hover:bg-ink-800 dark:bg-white dark:text-ink-950 dark:hover:bg-ink-100;
+}
+
+.btn-outline {
+  @apply border border-ink-900/20 text-ink-900 hover:border-ink-900 hover:bg-ink-900 hover:text-white
+         dark:border-white/25 dark:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-ink-950;
+}
+
+.btn-ghost {
+  @apply px-0 text-ink-900 hover:text-ember-600 dark:text-white dark:hover:text-ember-400;
+}
+
+.btn-sm { @apply px-4 py-2.5 text-[10px]; }
+
+/* Square icon button used in the navbar and cards. */
+.icon-btn {
+  @apply inline-flex h-10 w-10 items-center justify-center rounded-[3px] border border-ink-900/15
+         text-ink-700 transition-colors duration-200 hover:border-ink-900/40 hover:text-ink-950
+         dark:border-white/15 dark:text-ink-200 dark:hover:border-white/40 dark:hover:text-white;
+}
+
+/* ---------------------------------------------------------------------------
+   Navigation
+--------------------------------------------------------------------------- */
+.nav-shell {
+  @apply sticky top-0 z-50 border-b border-ink-900/10 bg-sand-50/85 backdrop-blur-xl
+         transition-[background-color,box-shadow] duration-300 dark:border-white/10 dark:bg-ink-950/85;
+}
+
+.nav-shell[data-scrolled="true"] {
+  @apply shadow-[0_18px_40px_-32px_rgba(11,14,20,0.55)];
+}
+
+.nav-link {
+  @apply relative inline-flex items-center gap-1.5 py-2 text-[12px] font-semibold uppercase
+         tracking-[0.14em] text-ink-600 transition-colors duration-200 hover:text-ink-950
+         dark:text-ink-300 dark:hover:text-white;
+}
+
+.nav-link::after {
+  content: "";
+  @apply absolute -bottom-0.5 left-0 h-[2px] w-0 bg-ember-500 transition-[width] duration-300;
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after { @apply w-full; }
+
+.nav-link[aria-current="page"] { @apply text-ink-950 dark:text-white; }
+
+/* Mega menu panel */
+.mega {
+  @apply pointer-events-none absolute left-0 right-0 top-full origin-top border-b border-ink-900/10
+         bg-sand-50 opacity-0 shadow-[0_40px_80px_-50px_rgba(11,14,20,0.6)]
+         transition-[opacity,transform] duration-200 dark:border-white/10 dark:bg-ink-950;
+  transform: translateY(-6px);
+  /* Invisible bridge so the pointer can travel from the trigger into the panel
+     without crossing a gap that would fire mouseleave. */
+  padding-top: 0.75rem;
+  margin-top: -0.75rem;
+}
+
+.mega[data-open="true"] {
+  @apply pointer-events-auto opacity-100;
+  transform: translateY(0);
+}
+
+.mega-item {
+  @apply flex items-start gap-3 rounded-[3px] border border-transparent p-3 transition-colors duration-200
+         hover:border-ink-900/10 hover:bg-sand-100 dark:hover:border-white/10 dark:hover:bg-white/[0.04];
+}
+
+.mega-item-title {
+  @apply text-sm font-bold tracking-[-0.01em] text-ink-900 dark:text-white;
+}
+
+.mega-item-desc {
+  @apply mt-1 text-xs leading-5 text-ink-500 dark:text-ink-400;
+}
+
+/* Mobile drawer */
+.drawer {
+  @apply fixed inset-y-0 right-0 z-[70] flex w-[min(22rem,88vw)] flex-col border-l border-ink-900/10
+         bg-sand-50 transition-transform duration-400 dark:border-white/10 dark:bg-ink-950;
+  transform: translateX(100%);
+  transition-timing-function: var(--ease-out-expo);
+}
+
+.drawer[data-open="true"] { transform: translateX(0); }
+
+.drawer-link {
+  @apply flex items-center justify-between border-b border-ink-900/10 py-4 text-lg font-bold
+         tracking-[-0.02em] text-ink-900 transition-colors hover:text-ember-600
+         dark:border-white/10 dark:text-white dark:hover:text-ember-400;
+}
+
+.drawer-sub {
+  @apply block py-2.5 text-sm font-medium text-ink-500 transition-colors hover:text-ember-600
+         dark:text-ink-400 dark:hover:text-ember-400;
+}
+
+.scrim {
+  @apply fixed inset-0 z-[65] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300;
+  pointer-events: none;
+}
+
+.scrim[data-open="true"] { @apply opacity-100; pointer-events: auto; }
+
+/* ---------------------------------------------------------------------------
+   Cards & panels
+--------------------------------------------------------------------------- */
+.card {
+  @apply relative flex flex-col overflow-hidden rounded-[4px] border border-ink-900/10 bg-white
+         transition-[transform,border-color,box-shadow] duration-400
+         hover:-translate-y-1 hover:border-ink-900/25 hover:shadow-[0_30px_60px_-40px_rgba(11,14,20,0.5)]
+         dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25;
+}
+
+.card-accent::before {
+  content: "";
+  @apply absolute inset-x-0 top-0 h-[3px] w-0 bg-ember-500 transition-[width] duration-500;
+}
+
+.card-accent:hover::before { @apply w-full; }
+
+.panel {
+  @apply rounded-[4px] border border-ink-900/10 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-white/[0.03];
+}
+
+.panel-dark {
+  @apply rounded-[4px] border border-white/10 bg-ink-900 p-6 text-white sm:p-8;
+}
+
+.tag {
+  @apply inline-flex items-center rounded-[2px] border border-ink-900/12 bg-sand-100 px-2.5 py-1
+         text-[10px] font-bold uppercase tracking-[0.14em] text-ink-600
+         dark:border-white/12 dark:bg-white/[0.05] dark:text-ink-300;
+}
+
+.tag-ember {
+  @apply border-ember-500/30 bg-ember-500/10 text-ember-700 dark:text-ember-300;
+}
+
+/* Numbered index used on value / process cards. */
+.index-num {
+  @apply font-display text-[11px] font-extrabold tracking-[0.24em] text-ember-600 dark:text-ember-400;
+}
+
+/* ---------------------------------------------------------------------------
+   Stats
+--------------------------------------------------------------------------- */
+.stat-value {
+  @apply font-display text-[2.5rem] font-extrabold leading-none tracking-[-0.05em] sm:text-[3.25rem];
+}
+
+.stat-label {
+  @apply mt-3 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-500 dark:text-ink-400;
+}
+
+/* ---------------------------------------------------------------------------
+   Product visuals — pure CSS/SVG "blueprint" plates, no external images.
+--------------------------------------------------------------------------- */
+.plate {
+  @apply relative aspect-[4/3] w-full overflow-hidden rounded-[3px] border border-ink-900/10
+         bg-ink-950 dark:border-white/10;
+}
+
+.plate::after {
+  content: "";
+  @apply pointer-events-none absolute inset-0;
+  background:
+    radial-gradient(circle at 22% 12%, rgba(249, 87, 17, 0.22), transparent 42%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.07), transparent 60%);
+}
+
+.plate-grid {
+  @apply absolute inset-0 opacity-[0.16];
+  background-image:
+    linear-gradient(to right, #fff 1px, transparent 1px),
+    linear-gradient(to bottom, #fff 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.plate-label {
+  @apply absolute left-4 top-4 z-10 text-[9px] font-bold uppercase tracking-[0.24em] text-white/60;
+}
+
+.plate-code {
+  @apply absolute right-4 top-4 z-10 font-display text-[9px] font-bold uppercase tracking-[0.24em] text-ember-400;
+}
+
+.plate-art {
+  @apply absolute inset-0 z-[5] grid place-items-center p-8;
+}
+
+.plate-art svg {
+  @apply h-full w-full max-h-[70%];
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
+}
+
+/* ---------------------------------------------------------------------------
+   Catalogue filters
+--------------------------------------------------------------------------- */
+.filter-chip {
+  @apply shrink-0 whitespace-nowrap rounded-[3px] border border-ink-900/15 bg-sand-50 px-4 py-2.5
+         text-[11px] font-bold uppercase tracking-[0.14em] text-ink-600 transition-all duration-200
+         hover:border-ink-900/40 hover:text-ink-950 dark:border-white/15 dark:bg-ink-950
+         dark:text-ink-300 dark:hover:border-white/40 dark:hover:text-white;
+}
+
+.filter-chip.is-active {
+  @apply border-ember-600 bg-ember-600 text-white hover:border-ember-600 hover:text-white;
+}
+
+/* Cards re-enter with a short lift whenever the filter changes. */
+.card.is-entering {
+  opacity: 0.25;
+  transform: translateY(12px);
+}
+
+/* ---------------------------------------------------------------------------
+   Marquee
+--------------------------------------------------------------------------- */
+.marquee {
+  @apply flex w-max items-center gap-12;
+  animation: marquee 34s linear infinite;
+}
+
+.marquee-wrap:hover .marquee { animation-play-state: paused; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ---------------------------------------------------------------------------
+   Reveal on scroll
+--------------------------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+  transition-delay: var(--delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Accordion (FAQ + mobile nav groups)
+--------------------------------------------------------------------------- */
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-out-expo);
+}
+
+.accordion-panel[data-open="true"] { grid-template-rows: 1fr; }
+
+.accordion-panel > div { overflow: hidden; }
+
+.accordion-trigger svg { @apply transition-transform duration-300; }
+.accordion-trigger[aria-expanded="true"] svg { transform: rotate(45deg); }
+
+/* ---------------------------------------------------------------------------
+   Slider (applications / gallery)
+--------------------------------------------------------------------------- */
+.slider-track {
+  @apply flex gap-5 overflow-x-auto pb-4;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.slider-track::-webkit-scrollbar { display: none; }
+
+.slider-slide {
+  @apply shrink-0;
+  scroll-snap-align: start;
+}
+
+/* ---------------------------------------------------------------------------
+   Forms
+--------------------------------------------------------------------------- */
+.field { @apply block; }
+
+.field > span {
+  @apply mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-ink-500 dark:text-ink-400;
+}
+
+.field input,
+.field select,
+.field textarea {
+  @apply w-full rounded-[3px] border border-ink-900/15 bg-white px-4 py-3 text-sm text-ink-900
+         outline-none transition placeholder:text-ink-400 focus:border-ember-500
+         focus:ring-4 focus:ring-ember-500/12 dark:border-white/15 dark:bg-ink-950/60
+         dark:text-white dark:placeholder:text-ink-600;
+}
+
+.field-error {
+  @apply mt-1.5 text-xs font-semibold text-ember-700 dark:text-ember-400;
+}
+
+/* ---------------------------------------------------------------------------
+   Video
+--------------------------------------------------------------------------- */
+.video-frame {
+  @apply relative overflow-hidden rounded-[4px] border border-white/10 bg-ink-950;
+}
+
+.video-frame video,
+.video-frame img {
+  @apply h-full w-full object-cover;
+}
+
+/* Fallback shown until a real MP4 is dropped into app/assets/videos. */
+.video-fallback {
+  @apply absolute inset-0;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(249, 87, 17, 0.35), transparent 45%),
+    radial-gradient(circle at 75% 70%, rgba(255, 169, 113, 0.18), transparent 50%),
+    linear-gradient(160deg, #0b0e14, #232a35 60%, #141922);
+}
+
+.video-fallback::after {
+  content: "";
+  @apply absolute inset-0 opacity-60;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.07) 0 1px,
+    transparent 1px 9px
+  );
+}
+
+.play-btn {
+  @apply inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/30
+         bg-white/10 text-white backdrop-blur-md transition-all duration-300
+         hover:scale-105 hover:border-white hover:bg-white hover:text-ink-950;
+}
+
+/* ---------------------------------------------------------------------------
+   Misc
+--------------------------------------------------------------------------- */
+.dot {
+  @apply h-1.5 w-1.5 rounded-full bg-ember-500;
+}
+
+.link-arrow {
+  @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em]
+         text-ink-900 transition-colors hover:text-ember-600 dark:text-white dark:hover:text-ember-400;
+}
+
+.link-arrow svg { @apply h-3.5 w-3.5 transition-transform duration-300; }
+.link-arrow:hover svg { transform: translate(3px, -3px); }
+
+.breadcrumb {
+  @apply flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-400;
+}
+
+.breadcrumb a { @apply transition-colors hover:text-ember-600 dark:hover:text-ember-400; }
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .reveal { opacity: 1; transform: none; transition: none; }
+
+  .marquee { animation: none; }
+
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

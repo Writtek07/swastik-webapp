@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-pt-24">
+  <head>
+    <title><%= content_for(:title) || page_title %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for(:description) || page_description %>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="<%= Catalog::COMPANY[:name] %>">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0b0e14">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap">
+
+    <%# Only the compiled Tailwind bundle is browser-ready; the raw sources in
+        app/assets/stylesheets are inputs to the build, not servable stylesheets. %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="grain min-h-screen" data-controller="video-modal" data-action="keydown.esc@window->video-modal#close">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[3px] focus:bg-ink-950 focus:px-4 focus:py-2 focus:text-xs focus:font-bold focus:uppercase focus:tracking-widest focus:text-white">
+      Skip to content
+    </a>
+
+    <%= render "shared/navbar" %>
+
+    <main id="main" class="relative z-10">
+      <%= render "shared/flash" %>
+      <%= yield %>
+    </main>
+
+    <%= render "shared/footer" %>
+    <%= render "shared/video_modal" %>
+  </body>
+</html>

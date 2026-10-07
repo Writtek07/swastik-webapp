@@ -1,0 +1,138 @@
+<% content_for :title, page_title("Who we are") %>
+<% content_for :description, "Swastik Enterprise has manufactured and supplied iron and steel from Raipur since 1988. Our history, values and leadership." %>
+
+<div data-controller="reveal">
+  <%= render "shared/page_hero",
+        kicker: "About us",
+        title: "Three decades of getting the grade right.",
+        lede: "Swastik Enterprise began as a trading house in Raipur in 1988. Today we melt, roll, test and dispatch our own structural, flat and reinforcement steel — and we still answer the phone ourselves.",
+        breadcrumb: [ [ "About", nil ] ] do %>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to plant_path, class: "btn-primary" do %>
+        Inside the plant
+        <%= icon "arrow-right" %>
+      <% end %>
+      <%= link_to clients_path, class: "btn-outline border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950" do %>
+        Clients & approvals
+        <%= icon "arrow-up-right" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ------------------------------------------------------------- Story %>
+  <section class="section">
+    <div class="shell grid gap-14 lg:grid-cols-[1.05fr_.95fr] lg:gap-20">
+      <div class="reveal" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "01 / Our story",
+              title: "From a trading desk to a rolling mill." %>
+        <div class="mt-8 space-y-6 text-base leading-8 text-ink-600 dark:text-ink-300">
+          <p>
+            We started by supplying structural sections to fabricators around Raipur. The work was simple:
+            know the section, know the grade, deliver when you said you would. That discipline earned us
+            repeat customers, and repeat customers paid for capacity.
+          </p>
+          <p>
+            By the mid-nineties we had our own re-rolling line. Reinforcement steel followed, then tubes and
+            pipes. Each expansion was driven by the same question — what are our customers waiting on that
+            we could control ourselves?
+          </p>
+          <p>
+            Today the group supplies infrastructure contractors, industrial fabricators and government
+            projects across Central India, with a project desk that handles staged releases against a
+            construction programme rather than a single bulk drop.
+          </p>
+        </div>
+
+        <div class="mt-10 grid gap-6 border-t border-ink-900/10 pt-8 sm:grid-cols-3 dark:border-white/10">
+          <% Catalog::STATS.first(3).each do |stat| %>
+            <div>
+              <p class="font-display text-3xl font-extrabold tracking-[-0.04em]">
+                <span data-counter="<%= stat[:value] %>" data-suffix="<%= stat[:suffix] %>">0<%= stat[:suffix] %></span>
+              </p>
+              <p class="stat-label"><%= stat[:label] %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="reveal" data-reveal-target="item" style="--delay:120ms">
+        <div class="plate !aspect-[4/5]">
+          <div class="plate-grid"></div>
+          <span class="plate-label">Raipur works</span>
+          <span class="plate-code">EST. <%= Catalog::COMPANY[:established] %></span>
+          <div class="plate-art text-white">
+            <%= render "shared/visuals/column" %>
+          </div>
+        </div>
+        <div class="panel mt-6">
+          <p class="micro">Registered office</p>
+          <p class="mt-3 text-sm leading-7 text-ink-600 dark:text-ink-300"><%= Catalog::COMPANY[:address] %></p>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <a href="tel:<%= Catalog::COMPANY[:phone].delete(' ') %>" class="link-arrow">
+              <%= icon "phone", class: "h-3.5 w-3.5" %>
+              <%= Catalog::COMPANY[:phone] %>
+            </a>
+            <a href="mailto:<%= Catalog::COMPANY[:email] %>" class="link-arrow">
+              <%= icon "mail", class: "h-3.5 w-3.5" %>
+              <%= Catalog::COMPANY[:email] %>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# --------------------------------------------------------- Milestones %>
+  <section class="section border-y border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "02 / Milestones",
+              title: "Growth, one capability at a time." %>
+      </div>
+
+      <ol class="mt-14 grid gap-px overflow-hidden rounded-[4px] border border-ink-900/10 bg-ink-900/10 sm:grid-cols-2 lg:grid-cols-3 dark:border-white/10 dark:bg-white/10">
+        <% @milestones.each_with_index do |milestone, index| %>
+          <li class="reveal bg-sand-50 p-8 dark:bg-ink-950" data-reveal-target="item" style="--delay:<%= (index % 3) * 80 %>ms">
+            <p class="font-display text-2xl font-extrabold tracking-[-0.04em] text-ember-600 dark:text-ember-400"><%= milestone[:year] %></p>
+            <h3 class="mt-4 font-display text-base font-bold tracking-[-0.01em]"><%= milestone[:title] %></h3>
+            <p class="mt-2 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= milestone[:body] %></p>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------- Values %>
+  <section class="section">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "03 / Values",
+              title: "What we hold each other to.",
+              lede: "These are not posters on a wall. They are the tests we apply before we commit to a delivery date." %>
+      </div>
+
+      <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <% @values.each_with_index do |value, index| %>
+          <div class="reveal panel group transition-colors duration-300 hover:border-ember-500/40" data-reveal-target="item" style="--delay:<%= (index % 3) * 80 %>ms">
+            <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ember-500/10 text-ember-600 transition-colors duration-300 group-hover:bg-ember-600 group-hover:text-white dark:text-ember-400">
+              <%= icon value[:icon], class: "h-5 w-5" %>
+            </span>
+            <h3 class="mt-5 font-display text-lg font-bold tracking-[-0.02em]"><%= value[:title] %></h3>
+            <p class="mt-3 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= value[:body] %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%= render "shared/cta",
+        title: "Come and see the plant.",
+        body: "We are happy to walk buyers, consultants and QA teams through melting, rolling and testing before you place an order.",
+        primary_label: "Arrange a visit",
+        primary_path: contact_path,
+        secondary_label: "Plant & facility",
+        secondary_path: plant_path %>
+</div>

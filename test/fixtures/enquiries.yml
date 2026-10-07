@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+structural:
+  name: Ravi Sharma
+  company: Vindhya Engineering Works
+  email: ravi@vindhya.example
+  phone: "+91 98261 11111"
+  product_key: structures
+  quantity: 24 tonnes
+  delivery_location: Raipur
+  message: Need parallel flange beams cut to length for a shed extension.
+  status: new
+
+reinforcement:
+  name: Anita Deshmukh
+  company: Mahanadi Bridge Consortium
+  email: anita@mahanadi.example
+  phone: "+91 98261 22222"
+  product_key: tmt
+  quantity: 120 tonnes
+  delivery_location: Bilaspur
+  message: Fe 500D rebars in staged releases over eight weeks.
+  status: quoted

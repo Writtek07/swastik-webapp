@@ -1,0 +1,97 @@
+<% content_for :title, page_title("Contact") %>
+<% content_for :description, "Contact the Swastik Enterprise sales desk in Raipur for steel quotations, project schedules and plant visits." %>
+
+<div data-controller="reveal">
+  <%= render "shared/page_hero",
+        kicker: "Contact",
+        title: "Tell us what you are building.",
+        lede: "Send the grade, section, quantity and delivery window. Stocked items are usually quoted the same working day; project schedules within 24 to 48 hours.",
+        breadcrumb: [ [ "Contact", nil ] ] %>
+
+  <section class="section">
+    <div class="shell grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+      <%# ------------------------------------------------------- Details %>
+      <div class="reveal" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "01 / Reach us",
+              title: "One desk, no call centre." %>
+
+        <div class="mt-10 space-y-px overflow-hidden rounded-[4px] border border-ink-900/10 bg-ink-900/10 dark:border-white/10 dark:bg-white/10">
+          <% [
+            [ "pin", "Registered office", Catalog::COMPANY[:address], nil ],
+            [ "phone", "Sales desk", "#{Catalog::COMPANY[:phone]} · #{Catalog::COMPANY[:phone_alt]}", "tel:#{Catalog::COMPANY[:phone].delete(' ')}" ],
+            [ "mail", "Email", Catalog::COMPANY[:email], "mailto:#{Catalog::COMPANY[:email]}" ],
+            [ "clock", "Working hours", Catalog::COMPANY[:hours], nil ]
+          ].each do |icon_name, label, value, href| %>
+            <div class="flex items-start gap-4 bg-sand-50 p-6 dark:bg-ink-950">
+              <span class="grid h-10 w-10 shrink-0 place-items-center rounded-[3px] bg-ember-500/10 text-ember-600 dark:text-ember-400">
+                <%= icon icon_name, class: "h-5 w-5" %>
+              </span>
+              <div>
+                <p class="micro"><%= label %></p>
+                <% if href %>
+                  <a href="<%= href %>" class="mt-2 block text-sm font-semibold leading-6 transition-colors hover:text-ember-600 dark:hover:text-ember-400"><%= value %></a>
+                <% else %>
+                  <p class="mt-2 text-sm font-semibold leading-6"><%= value %></p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <%= link_to Catalog::COMPANY[:map_url], class: "btn-outline", target: "_blank", rel: "noopener noreferrer" do %>
+            <%= icon "pin" %>
+            Open in maps
+          <% end %>
+          <a href="tel:<%= Catalog::COMPANY[:phone].delete(' ') %>" class="btn-dark">
+            <%= icon "phone" %>
+            Call now
+          </a>
+        </div>
+      </div>
+
+      <%# ---------------------------------------------------------- Form %>
+      <div class="reveal scroll-mt-28" id="enquiry" data-reveal-target="item" style="--delay:120ms">
+        <div class="mb-6 flex items-center gap-3">
+          <span class="index-num">02 / Enquiry</span>
+          <span class="rule flex-1"></span>
+        </div>
+        <%= render "shared/enquiry_form", product_key: params[:product] %>
+      </div>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------- FAQ %>
+  <section class="section border-t border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="shell grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+      <div class="reveal" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "03 / Before you write",
+              title: "Answers to the usual questions." %>
+      </div>
+
+      <div class="reveal divide-y divide-ink-900/10 border-y border-ink-900/10 dark:divide-white/10 dark:border-white/10" data-reveal-target="item" data-controller="accordion">
+        <% @faqs.each do |faq| %>
+          <div>
+            <button
+              type="button"
+              class="accordion-trigger flex w-full items-center justify-between gap-6 py-6 text-left"
+              aria-expanded="false"
+              data-accordion-target="trigger"
+              data-action="click->accordion#toggle"
+            >
+              <span class="font-display text-base font-bold tracking-[-0.01em] sm:text-lg"><%= faq[:question] %></span>
+              <%= icon "plus", class: "h-5 w-5 shrink-0 text-ember-500" %>
+            </button>
+            <div class="accordion-panel" data-accordion-target="panel" data-open="false">
+              <div>
+                <p class="pb-6 pr-10 text-sm leading-7 text-ink-500 dark:text-ink-400"><%= faq[:answer] %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</div>

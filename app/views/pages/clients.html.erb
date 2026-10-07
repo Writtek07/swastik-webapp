@@ -1,0 +1,113 @@
+<% content_for :title, page_title("Clients & approvals") %>
+<% content_for :description, "Government, infrastructure and industrial clients supplied by Swastik Enterprise, plus our registrations and approvals." %>
+
+<div data-controller="reveal">
+  <%= render "shared/page_hero",
+        kicker: "Clients & approvals",
+        title: "Trusted where the specification is not negotiable.",
+        lede: "We supply government departments, infrastructure contractors and industrial fabricators. Most of them have been buying from us for more than a decade.",
+        breadcrumb: [ [ "Clients", nil ] ] do %>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to contact_path, class: "btn-primary" do %>
+        Become a client
+        <%= icon "arrow-right" %>
+      <% end %>
+      <%= link_to products_path, class: "btn-outline border-white/25 text-white hover:border-white hover:bg-white hover:text-ink-950" do %>
+        Product catalogue
+        <%= icon "arrow-up-right" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ------------------------------------------------------------ Clients %>
+  <section class="section">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "01 / Clientele",
+              title: "Our esteemed clientele.",
+              lede: "A representative selection of the organisations we supply. Names are indicative placeholders pending final approval for publication." %>
+      </div>
+
+      <div class="mt-14 grid gap-px overflow-hidden rounded-[4px] border border-ink-900/10 bg-ink-900/10 sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-white/10">
+        <% @clients.each_with_index do |client, index| %>
+          <div class="reveal group flex flex-col justify-between bg-sand-50 p-7 transition-colors duration-300 hover:bg-white dark:bg-ink-950 dark:hover:bg-white/[0.04]" data-reveal-target="item" style="--delay:<%= (index % 4) * 70 %>ms">
+            <span class="grid h-10 w-10 place-items-center rounded-[3px] border border-ink-900/10 text-ink-400 transition-colors duration-300 group-hover:border-ember-500/40 group-hover:text-ember-600 dark:border-white/10 dark:text-ink-500 dark:group-hover:text-ember-400">
+              <%= icon "factory", class: "h-5 w-5" %>
+            </span>
+            <div class="mt-10">
+              <p class="font-display text-base font-bold leading-snug tracking-[-0.01em]"><%= client[:name] %></p>
+              <p class="micro mt-2"><%= client[:sector] %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ---------------------------------------------------------- Approvals %>
+  <section class="section border-y border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
+    <div class="shell grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
+      <div class="reveal" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "02 / Approvals",
+              title: "Registered, licensed and audited." %>
+        <p class="lede mt-7">
+          Our registrations are maintained and renewed on schedule, and documentation is available on request
+          with any tender submission.
+        </p>
+        <%= link_to contact_path, class: "btn-dark mt-9" do %>
+          Request documentation
+          <%= icon "arrow-right" %>
+        <% end %>
+      </div>
+
+      <ul class="reveal grid gap-4 sm:grid-cols-2" data-reveal-target="item" style="--delay:120ms">
+        <% @approvals.each_with_index do |approval, index| %>
+          <li class="flex items-start gap-4 rounded-[4px] border border-ink-900/10 bg-sand-50 p-5 dark:border-white/10 dark:bg-ink-950">
+            <span class="mt-0.5 shrink-0 text-ember-500"><%= icon "award", class: "h-5 w-5" %></span>
+            <span class="text-sm font-semibold leading-6"><%= approval %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------- Applications %>
+  <section class="section">
+    <div class="shell">
+      <div class="reveal max-w-3xl" data-reveal-target="item">
+        <%= render "shared/section_heading",
+              kicker: "03 / Sectors",
+              title: "Where our steel ends up." %>
+      </div>
+
+      <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <% @applications.each_with_index do |application, index| %>
+          <article class="reveal card card-accent" data-reveal-target="item" style="--delay:<%= index * 80 %>ms">
+            <div class="p-3">
+              <div class="plate !aspect-[16/11]">
+                <div class="plate-grid"></div>
+                <div class="plate-art text-white">
+                  <%= render "shared/visuals/#{application[:visual]}" %>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-1 flex-col p-6 pt-3">
+              <h3 class="font-display text-base font-bold tracking-[-0.01em]"><%= application[:title] %></h3>
+              <p class="mt-2 flex-1 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= application[:body] %></p>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%= render "shared/cta",
+        title: "Add your project to the list.",
+        body: "Send the material schedule and delivery programme. We will confirm what can be released from stock and what needs a rolling slot.",
+        primary_label: "Start an enquiry",
+        primary_path: contact_path,
+        secondary_label: "Plant & facility",
+        secondary_path: plant_path %>
+</div>

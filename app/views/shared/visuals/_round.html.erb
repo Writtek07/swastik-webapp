@@ -1,0 +1,28 @@
+<%# Round and square bar bundle. %>
+<svg viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Round and square bar sections">
+  <defs>
+    <linearGradient id="bar-round" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#667085" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+
+  <%# Round bars, end-on %>
+  <% [ [ 96, 74 ], [ 96, 140 ], [ 168, 74 ], [ 168, 140 ] ].each do |cx, cy| %>
+    <circle cx="<%= cx %>" cy="<%= cy %>" r="26" fill="url(#bar-round)"/>
+    <circle cx="<%= cx %>" cy="<%= cy %>" r="26" stroke="#3a4250" stroke-opacity="0.6"/>
+    <circle cx="<%= cx %>" cy="<%= cy %>" r="13" fill="#0b0e14" fill-opacity="0.35"/>
+  <% end %>
+
+  <%# Square bar, end-on %>
+  <rect x="212" y="48" width="52" height="52" rx="3" fill="url(#bar-round)"/>
+  <rect x="212" y="48" width="52" height="52" rx="3" stroke="#3a4250" stroke-opacity="0.6"/>
+  <rect x="228" y="64" width="20" height="20" rx="2" fill="#0b0e14" fill-opacity="0.3"/>
+
+  <%# Diameter callout %>
+  <g stroke="#f95711" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.85">
+    <path d="M70 74 L122 74"/>
+    <path d="M70 68 L70 80M122 68 L122 80"/>
+  </g>
+  <text x="86" y="64" fill="#ffa971" font-size="9" font-family="monospace">Ø</text>
+</svg>
