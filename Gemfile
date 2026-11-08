@@ -73,7 +73,7 @@ end
 
 gem "devise", "~> 5.0"
 
-gem "pagy", "~> 9.4"
+gem "pagy", "~> 43.4"
 
 # Quotation PDFs (QuotePdf)
 gem "prawn", "~> 2.5"
