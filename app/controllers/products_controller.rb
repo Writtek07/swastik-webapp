@@ -6,9 +6,10 @@ class ProductsController < ApplicationController
   end
 
   def show
-    @product = Catalog.product(params[:slug])
-    return redirect_to products_path, alert: "That product family is not available." if @product.nil?
+    # A real 404 rather than a redirect, so search engines drop dead product
+    # URLs instead of treating the catalogue as a soft 404.
+    @product = Catalog.product(params[:slug]) or raise ActiveRecord::RecordNotFound
 
-    @related = Catalog::PRODUCTS.reject { |product| product[:slug] == @product[:slug] }.first(3)
+    @related = Product.where.not(id: @product.id).ordered.limit(3)
   end
 end

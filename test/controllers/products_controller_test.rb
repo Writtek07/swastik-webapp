@@ -25,9 +25,9 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
     assert_select "span", text: "32 mm"
   end
 
-  test "show redirects for an unknown slug" do
+  test "show is a 404 for an unknown slug" do
     get product_path("does-not-exist")
 
-    assert_redirected_to products_path
+    assert_response :not_found
   end
 end

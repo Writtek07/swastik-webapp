@@ -1,0 +1,74 @@
+<% content_for :title, "Enquiries · Admin" %>
+
+<p class="micro">Sales desk</p>
+<h1 class="admin-title mt-2">Enquiries</h1>
+<p class="mt-2 text-sm text-ink-500">Requests sent from the contact form on the public site, newest first.</p>
+
+<%= turbo_frame_tag "enquiries", data: { turbo_action: "advance" } do %>
+  <section class="admin-card mt-8">
+    <div class="admin-card__head">
+      <%= form_with url: admin_enquiries_path, method: :get, class: "flex w-full items-center gap-2" do |f| %>
+        <div class="relative flex-1">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-ink-400"><%= icon "search", class: "h-4 w-4" %></span>
+          <%= f.search_field :q, value: @query, placeholder: "Search by name, company, email or phone",
+                class: "admin-input pl-9", aria: { label: "Search enquiries" } %>
+        </div>
+        <%= f.submit "Search", class: "btn-dark btn-sm", name: nil %>
+        <% if @query.present? %>
+          <%= link_to "Clear", admin_enquiries_path, class: "text-xs font-bold text-ink-500 hover:text-ink-900" %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if @enquiries.empty? %>
+      <div class="px-6 py-14 text-center">
+        <%= icon "mail", class: "mx-auto h-8 w-8 text-ink-300" %>
+        <p class="mt-3 text-sm font-semibold text-ink-700">
+          <%= @query.present? ? "No enquiries match “#{@query}”" : "No enquiries yet" %>
+        </p>
+        <p class="mt-1 text-xs text-ink-500">Enquiries sent from the contact page will appear here.</p>
+      </div>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="admin-table min-w-[960px]">
+          <thead>
+            <tr>
+              <th scope="col">Received</th>
+              <th scope="col">From</th>
+              <th scope="col">Contact</th>
+              <th scope="col">Product</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Deliver to</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @enquiries.each do |enquiry| %>
+              <tr>
+                <td class="whitespace-nowrap">
+                  <%= link_to admin_enquiry_path(enquiry), class: "font-semibold text-ink-900 hover:text-ember-600", data: { turbo_frame: "_top" } do %>
+                    <%= l enquiry.created_at, format: "%-d %b %Y" %>
+                  <% end %>
+                  <p class="text-[11px] text-ink-400"><%= l enquiry.created_at, format: "%H:%M" %></p>
+                </td>
+                <td>
+                  <%= link_to enquiry.name, admin_enquiry_path(enquiry), class: "font-semibold text-ink-900 hover:text-ember-600", data: { turbo_frame: "_top" } %>
+                  <p class="text-xs text-ink-500"><%= enquiry.company.presence || "—" %></p>
+                </td>
+                <td>
+                  <p class="text-[13px]"><%= mail_to enquiry.email, class: "hover:text-ember-600" %></p>
+                  <p class="text-xs text-ink-500"><%= enquiry.phone.presence || "—" %></p>
+                </td>
+                <td class="text-ink-700"><%= enquiry.product_name %></td>
+                <td class="text-ink-500"><%= enquiry.quantity.presence || "—" %></td>
+                <td class="text-ink-500"><%= enquiry.delivery_location.presence || "—" %></td>
+                <td><%= enquiry_status_pill enquiry %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "admin/shared/pagination", pagy: @pagy, item_name: "enquiries" %>
+    <% end %>
+  </section>
+<% end %>

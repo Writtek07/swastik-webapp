@@ -1,0 +1,6 @@
+<%# Events for app/javascript/lib/analytics.js to send on this page load. JSON in a
+    non-executing script tag; the script removes it after reading. %>
+<% events = pending_analytics_events %>
+<% if events.any? %>
+  <script type="application/json" id="analytics-events"><%= json_escape(events.to_json).html_safe %></script>
+<% end %>

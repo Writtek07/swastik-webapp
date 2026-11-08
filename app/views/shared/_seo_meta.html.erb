@@ -1,0 +1,58 @@
+<%#
+  Search, social and AI metadata for every public page. See SeoHelper.
+  Pages override pieces with content_for: :title, :description, :canonical,
+  :robots, :og_image, :og_type.
+%>
+<% title = content_for(:title).presence || page_title %>
+<% description = meta_text(content_for(:description).presence || page_description) %>
+<% company = Catalog::COMPANY %>
+
+<meta name="description" content="<%= description %>">
+<meta name="robots" content="<%= meta_robots %>">
+<link rel="canonical" href="<%= canonical_url %>">
+<meta name="author" content="<%= company[:name] %>">
+<meta name="publisher" content="<%= company[:name] %>">
+<meta name="format-detection" content="telephone=yes">
+
+<%# Local signals. Google ignores these, Bing and several regional engines use them. %>
+<meta name="geo.region" content="<%= Catalog::ADDRESS[:region_code] %>">
+<meta name="geo.placename" content="<%= Catalog::ADDRESS[:locality] %>">
+<% if Catalog::ADDRESS[:latitude].present? && Catalog::ADDRESS[:longitude].present? %>
+  <meta name="geo.position" content="<%= Catalog::ADDRESS[:latitude] %>;<%= Catalog::ADDRESS[:longitude] %>">
+  <meta name="ICBM" content="<%= Catalog::ADDRESS[:latitude] %>, <%= Catalog::ADDRESS[:longitude] %>">
+<% end %>
+
+<%# Open Graph: link previews on WhatsApp, LinkedIn, Facebook, Slack and the AI assistants that unfurl links. %>
+<meta property="og:site_name" content="<%= company[:name] %>">
+<meta property="og:type" content="<%= og_type %>">
+<meta property="og:locale" content="en_IN">
+<meta property="og:url" content="<%= canonical_url %>">
+<meta property="og:title" content="<%= title %>">
+<meta property="og:description" content="<%= description %>">
+<meta property="og:image" content="<%= og_image_url %>">
+<meta property="og:image:alt" content="<%= title %>">
+<% if og_image_url.end_with?(SeoHelper::OG_IMAGE_PATH) %>
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+<% end %>
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= title %>">
+<meta name="twitter:description" content="<%= description %>">
+<meta name="twitter:image" content="<%= og_image_url %>">
+<meta name="twitter:image:alt" content="<%= title %>">
+
+<%# Search console ownership, set per environment. %>
+<% if ENV["GOOGLE_SITE_VERIFICATION"].present? %>
+  <meta name="google-site-verification" content="<%= ENV["GOOGLE_SITE_VERIFICATION"] %>">
+<% end %>
+<% if ENV["BING_SITE_VERIFICATION"].present? %>
+  <meta name="msvalidate.01" content="<%= ENV["BING_SITE_VERIFICATION"] %>">
+<% end %>
+
+<link rel="sitemap" type="application/xml" title="Sitemap" href="<%= absolute_url("/sitemap.xml") %>">
+<%# Plain-language site summary for LLMs (llmstxt.org). %>
+<link rel="alternate" type="text/markdown" title="LLM summary" href="<%= absolute_url("/llms.txt") %>">
+
+<%= structured_data_tag %>

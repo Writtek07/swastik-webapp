@@ -36,11 +36,39 @@ module SiteHelper
   end
 
   def product_path_for(product)
-    product_path(product[:slug])
+    product_path(product.slug)
   end
 
   def enquiry_product_options
-    Catalog::PRODUCTS.map { |product| [ "#{product[:title]} — #{product[:category]}", product[:key] ] }.uniq
+    Product.ordered.map { |product| [ "#{product.title} — #{product.category}", product.key ] }.uniq
+  end
+
+  # Sized Unsplash URL for a Catalog photo id.
+  def unsplash_url(id, width: 1200, height: nil)
+    params = { auto: "format", fit: "crop", w: width, h: height, q: 70 }.compact
+    "https://images.unsplash.com/photo-#{id}?#{params.to_query}"
+  end
+
+  # The horizontal logo (mark + wordmark). The "ENTERPRISE" line is black in the
+  # original artwork, so dark surfaces need the variant with light lettering:
+  # `on: :dark` for always-dark areas, `on: :auto` to follow the site theme.
+  # Assets are generated from the source logo; regenerate them with script/brand/build.
+  LOCKUP_SIZE = { width: 679, height: 120 }.freeze
+
+  def brand_lockup(on: :auto, css: "h-10 w-auto")
+    name = Catalog::COMPANY[:name]
+    dark = image_tag("brand/lockup-dark.webp", alt: name, **LOCKUP_SIZE,
+                     class: [ css, ("hidden dark:block" if on == :auto) ])
+    return dark if on == :dark
+
+    light = image_tag("brand/lockup-light.webp", alt: name, **LOCKUP_SIZE,
+                      class: [ css, ("dark:hidden" if on == :auto) ])
+    on == :auto ? safe_join([ light, dark ]) : light
+  end
+
+  # The symbol on its own, for tight spots (admin chrome, the intro).
+  def brand_mark(css: "h-10 w-auto", alt: "")
+    image_tag("brand/mark.webp", alt: alt, width: 320, height: 232, class: css)
   end
 
   def current_year

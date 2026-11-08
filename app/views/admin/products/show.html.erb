@@ -1,0 +1,55 @@
+<% content_for :title, "#{@product.title} · Admin" %>
+
+<%= link_to admin_products_path, class: "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-ink-500 hover:text-ink-900" do %>
+  <%= icon "arrow-left", class: "h-3.5 w-3.5" %> Products
+<% end %>
+<div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="admin-title"><%= @product.title %></h1>
+    <p class="mt-2 text-sm text-ink-500"><%= @product.category %><%= " · #{@product.grade}" if @product.grade %> — price history</p>
+  </div>
+  <% if admin_can?(:products, :edit) %>
+    <%= link_to edit_admin_product_path(@product), class: "btn-dark btn-sm shrink-0" do %>
+      Edit details <%= icon "arrow-right" %>
+    <% end %>
+  <% end %>
+</div>
+
+<%= turbo_frame_tag "product_price_history", data: { turbo_action: "advance" } do %>
+  <section class="admin-card mt-8">
+    <% if @prices.empty? %>
+      <p class="px-6 py-12 text-center text-sm text-ink-500">No prices recorded for this product yet.</p>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="admin-table min-w-[720px]">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col" class="text-right">Price</th>
+              <th scope="col">Change</th>
+              <th scope="col">Notes</th>
+              <th scope="col">Entered by</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @prices.each do |entry| %>
+              <tr>
+                <td class="font-semibold text-ink-900"><%= link_to l(entry.priced_on, format: "%a, %-d %b %Y"), admin_daily_prices_path(priced_on: entry.priced_on), class: "hover:text-ember-600", data: { turbo_frame: "_top" } %></td>
+                <td class="text-right font-semibold text-ink-900"><%= inr entry.price %></td>
+                <td><%= price_change_badge(entry.change, previous: entry[:previous_price]) %></td>
+                <td class="text-ink-500"><%= entry.notes.presence || "—" %></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <%= admin_avatar entry.admin, size: "h-6 w-6 text-[9px]" %>
+                    <span class="text-[13px] text-ink-700"><%= entry.admin.display_name %></span>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "admin/shared/pagination", pagy: @pagy, item_name: "entries" %>
+    <% end %>
+  </section>
+<% end %>

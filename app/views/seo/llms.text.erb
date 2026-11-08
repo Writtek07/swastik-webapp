@@ -1,0 +1,91 @@
+<%#
+  /llms.txt and /llms-full.txt (https://llmstxt.org). A text/plain template, so
+  Rails doesn't HTML-escape it and "Tubes & Pipes" stays readable.
+-%>
+<% address = Catalog::ADDRESS -%>
+# <%= @company[:name] %>
+
+> <%= @company[:name] %> (<%= @company[:legal_name] %>) is a steel manufacturer and supplier based in <%= address[:locality] %>, <%= address[:region] %>, <%= address[:country] %>, established in <%= @company[:established] %>. <%= @company[:summary] %>
+
+It manufactures and supplies structural steel sections, TMT reinforcement bars, tubes and pipes, and steel sheets and plates for infrastructure, industrial, fabrication and construction projects. Routine delivery covers <%= @company[:area_served].to_sentence %>; other states are served on full-load dispatch. Every dispatch carries a mill test certificate.
+
+## Key facts
+
+- Founded: <%= @company[:established] %>, <%= address[:locality] %>, <%= address[:region] %>
+<% Catalog::STATS.each do |stat| -%>
+- <%= stat[:label] %>: <%= stat[:value] %><%= stat[:suffix] %> (<%= stat[:note].downcase_first %>)
+<% end -%>
+- Approvals and registrations: <%= Catalog::APPROVALS.join("; ") %>
+- Services: <%= Catalog::CAPABILITIES.map { |c| c[:title].downcase }.to_sentence %>
+
+## Contact
+
+- Address: <%= @company[:address] %>
+- Phone: <%= [ @company[:phone], @company[:phone_alt] ].compact_blank.join(", ") %>
+- Email: <%= @company[:email] %>
+- Hours: <%= @company[:hours] %>
+- Request a quotation: <%= absolute_url(contact_path) %>
+
+## Products
+
+<% @products.each do |product| -%>
+- [<%= product.title %>](<%= absolute_url(product_path(product.slug)) %>): <%= product.category %>. <%= product.summary %>
+<% end -%>
+
+## Pages
+
+- [Home](<%= absolute_url(root_path) %>): overview, product families, applications and instant quotes
+- [Product catalogue](<%= absolute_url(products_path) %>): every product family with sizes and grades
+- [About](<%= absolute_url(about_path) %>): history since <%= @company[:established] %>, values and milestones
+- [Plant & facility](<%= absolute_url(plant_path) %>): melting, casting, rolling, testing and dispatch
+- [Clients & approvals](<%= absolute_url(clients_path) %>): sectors supplied and certifications held
+- [Contact](<%= absolute_url(contact_path) %>): sales desk, enquiry form and FAQs
+<% unless @full -%>
+
+## Optional
+
+- [Full catalogue with specifications](<%= absolute_url("/llms-full.txt") %>): sizes, grades, specifications and FAQs as plain text
+- [Sitemap](<%= absolute_url("/sitemap.xml") %>)
+<% end -%>
+<% if @full -%>
+
+## Product specifications
+<% @products.each do |product| -%>
+
+### <%= product.title %>
+
+URL: <%= absolute_url(product_path(product.slug)) %>
+Category: <%= product.category %>
+
+<%= product.description.presence || product.summary %>
+<% if product.spec_pairs.any? -%>
+
+Specifications:
+<% product.spec_pairs.each do |label, value| -%>
+- <%= label %>: <%= value %>
+<% end -%>
+<% end -%>
+<% if product.sizes.any? -%>
+
+Sizes: <%= product.sizes.join(", ") %>
+<% end -%>
+<% if product.applications.any? -%>
+
+Applications: <%= product.applications.join(", ") %>
+<% end -%>
+<% end -%>
+
+## Manufacturing process
+<% Catalog::PROCESS.each do |stage| -%>
+
+<%= stage[:step] %>. **<%= stage[:title] %>**: <%= stage[:body] %>
+<% end -%>
+
+## Frequently asked questions
+<% @faqs.each do |faq| -%>
+
+### <%= faq[:question] %>
+
+<%= faq[:answer] %>
+<% end -%>
+<% end -%>

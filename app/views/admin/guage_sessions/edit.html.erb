@@ -1,0 +1,12 @@
+<% content_for :title, "Edit gauge session · Admin" %>
+
+<%= link_to admin_guage_prices_path(session_id: @guage_session.id), class: "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-ink-500 hover:text-ink-900" do %>
+  <%= icon "arrow-left", class: "h-3.5 w-3.5" %> Gauge prices
+<% end %>
+<h1 class="admin-title mt-3">Edit gauge session</h1>
+<p class="mt-2 text-sm text-ink-500">
+  Opened by <%= @guage_session.created_by.display_name %> on <%= l @guage_session.created_at, format: "%-d %b %Y" %>.
+  Prices already entered stay with this session when its dates change.
+</p>
+
+<%= render "form", guage_session: @guage_session, submit_label: "Save dates" %>

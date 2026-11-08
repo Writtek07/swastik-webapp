@@ -1,5 +1,15 @@
-<% content_for :title, page_title("Contact") %>
-<% content_for :description, "Contact the Swastik Enterprise sales desk in Raipur for steel quotations, project schedules and plant visits." %>
+<% content_for :title, page_title("Contact Us — Steel Quotations in #{Catalog::ADDRESS[:locality]}") %>
+<% content_for :description, "Contact the #{Catalog::COMPANY[:name]} sales desk in #{Catalog::ADDRESS[:locality]}, #{Catalog::ADDRESS[:region]} for steel quotations, project schedules and plant visits. Call #{Catalog::COMPANY[:phone]} or send an enquiry." %>
+<% page_type "ContactPage" %>
+<% structured_data(
+     "@type" => "FAQPage",
+     "@id" => "#{canonical_url}#faq",
+     "isPartOf" => { "@id" => webpage_id },
+     "mainEntity" => @faqs.map { |faq|
+       { "@type" => "Question", "name" => faq[:question],
+         "acceptedAnswer" => { "@type" => "Answer", "text" => faq[:answer] } }
+     }
+   ) %>
 
 <div data-controller="reveal">
   <%= render "shared/page_hero",
@@ -71,7 +81,7 @@
               title: "Answers to the usual questions." %>
       </div>
 
-      <div class="reveal divide-y divide-ink-900/10 border-y border-ink-900/10 dark:divide-white/10 dark:border-white/10" data-reveal-target="item" data-controller="accordion">
+      <div class="reveal divide-y divide-ink-900/10 border-y border-ink-900/10 dark:divide-white/10 dark:border-white/10" data-reveal-target="item" data-controller="accordion" data-analytics-faq>
         <% @faqs.each do |faq| %>
           <div>
             <button

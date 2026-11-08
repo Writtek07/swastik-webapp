@@ -53,6 +53,8 @@ module IconsHelper
     "quote" => '<path d="M9 6c-3 1.5-4.5 4-4.5 7.5A4.5 4.5 0 0 0 9 18a3.5 3.5 0 0 0 0-7c-.5 0-1 .1-1.4.3C8 9.6 9 8.4 10.5 7.5Z"/><path d="M19 6c-3 1.5-4.5 4-4.5 7.5A4.5 4.5 0 0 0 19 18a3.5 3.5 0 0 0 0-7c-.5 0-1 .1-1.4.3C18 9.6 19 8.4 20.5 7.5Z"/>',
     "target" => '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
     "globe" => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/>',
+    "search" => '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4"/>',
+    "sliders" => '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
     "bolt" => '<path d="M13 3 5 14h6l-1 7 8-11h-6l1-7Z"/>'
   }.freeze
 
@@ -75,7 +77,11 @@ module IconsHelper
       "stroke-linecap": "round",
       "stroke-linejoin": "round",
       "aria-hidden": "true",
-      **{ class: "h-5 w-5" }.merge(options)
+      # The default 20px size is set as SVG attributes rather than `h-5 w-5`
+      # classes: attributes lose to any CSS, so contextual rules such as
+      # `.btn-primary svg` can still size an icon that was given no class.
+      **(options.key?(:class) ? {} : { width: 20, height: 20 }),
+      **options
     )
   end
 end

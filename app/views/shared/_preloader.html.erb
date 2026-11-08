@@ -1,0 +1,46 @@
+<%#
+  First-visit intro. Rendered on every page but only shown while <html> carries
+  `is-preloading`, which an inline script in the <head> sets once per browser
+  session (and never under reduced motion). The preloader controller drives the
+  counter, then lifts the curtain and hands scrolling back to Lenis.
+%>
+<% word = Catalog::COMPANY[:name].split.first.upcase %>
+<div class="preloader" data-controller="preloader" aria-hidden="true">
+  <div class="preloader__curtain preloader__curtain--ember"></div>
+
+  <div class="preloader__panel" data-preloader-target="panel">
+    <%# Blueprint rules that draw themselves in. pathLength="1" lets the CSS
+        animate every line with the same dash values regardless of length. %>
+    <svg class="preloader__lines" viewBox="0 0 1440 900" preserveAspectRatio="none" fill="none">
+      <% [
+           "M0 640 L1440 380", "M0 700 L1440 440", "M180 900 L180 0", "M540 900 L540 0",
+           "M900 900 L900 0", "M1260 900 L1260 0", "M0 220 L1440 220"
+         ].each_with_index do |d, i| %>
+        <path d="<%= d %>" pathLength="1" style="--i:<%= i %>"/>
+      <% end %>
+    </svg>
+
+    <div class="preloader__inner">
+      <div class="preloader__meta">
+        <span><%= Catalog::COMPANY[:name] %></span>
+        <span>Raipur · Est. <%= Catalog::COMPANY[:established] %></span>
+      </div>
+
+      <div class="preloader__center">
+        <%= brand_mark css: "preloader__mark" %>
+        <p class="preloader__word">
+          <% word.each_char.with_index do |char, i| %>
+            <span class="preloader__mask"><span style="--i:<%= i %>"><%= char %></span></span>
+          <% end %>
+        </p>
+        <p class="preloader__tagline"><%= Catalog::COMPANY[:tagline] %></p>
+      </div>
+
+      <div class="preloader__foot">
+        <span class="preloader__count"><span data-preloader-target="count">000</span><sup>%</sup></span>
+        <div class="preloader__track"><span class="preloader__bar" data-preloader-target="bar"></span></div>
+        <span class="preloader__status" data-preloader-target="status">Heating the furnace</span>
+      </div>
+    </div>
+  </div>
+</div>

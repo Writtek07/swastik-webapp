@@ -44,14 +44,8 @@
     data-action="mouseleave->site-nav#scheduleClose focusout->site-nav#handleFocusOut"
   >
     <div class="shell flex h-[4.5rem] items-center justify-between gap-6">
-      <%= link_to root_path, class: "group flex shrink-0 items-center gap-3", aria: { label: "#{Catalog::COMPANY[:name]} home" } do %>
-        <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ember-600 text-white shadow-[0_10px_24px_-14px] shadow-ember-600/80 transition-transform duration-300 group-hover:-rotate-6">
-          <%= icon "bolt", class: "h-5 w-5", stroke: 1.8 %>
-        </span>
-        <span class="leading-none">
-          <span class="block font-display text-[15px] font-extrabold uppercase tracking-[0.2em] text-ink-950 dark:text-white">Swastik</span>
-          <span class="mt-1 block text-[9px] font-bold uppercase tracking-[0.28em] text-ink-500 dark:text-ink-400">Enterprise · Steel</span>
-        </span>
+      <%= link_to root_path, class: "flex shrink-0 items-center", aria: { label: "#{Catalog::COMPANY[:name]} home" } do %>
+        <%= brand_lockup css: "h-9 w-auto sm:h-10" %>
       <% end %>
 
       <nav class="hidden items-center gap-8 lg:flex" aria-label="Primary">

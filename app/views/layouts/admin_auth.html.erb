@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "Sign in · #{Catalog::COMPANY[:name]}" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0b0e14">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= render "shared/favicons" %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap">
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="min-h-screen bg-sand-100">
+    <div class="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
+      <%# Brand panel: decorative on large screens, collapses to a header strip on phones. %>
+      <section class="relative flex flex-col justify-between overflow-hidden bg-ink-950 px-6 py-8 text-white sm:px-10 lg:px-14 lg:py-12">
+        <div class="hatch pointer-events-none absolute inset-0 opacity-60" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-40 -left-24 h-[28rem] w-[28rem] rounded-full bg-ember-500/25 blur-3xl" aria-hidden="true"></div>
+
+        <div class="relative flex items-center gap-3">
+          <%= brand_mark css: "h-10 w-auto shrink-0" %>
+          <span class="leading-tight">
+            <span class="block font-display text-base font-extrabold tracking-tight"><%= Catalog::COMPANY[:name] %></span>
+            <span class="block text-[10px] font-bold uppercase tracking-[0.22em] text-ink-400">Back office</span>
+          </span>
+        </div>
+
+        <div class="relative mt-10 hidden max-w-md lg:block">
+          <p class="kicker">Daily price desk</p>
+          <h1 class="mt-5 font-display text-5xl font-extrabold leading-[0.98] tracking-[-0.035em]">
+            Today's rates, <span class="text-ember-400">on the record.</span>
+          </h1>
+          <p class="mt-6 text-sm leading-7 text-ink-300">
+            Set the day's price for every product family in one sheet. Each entry is stamped with the admin who made it, so the history always shows who priced what, and when.
+          </p>
+        </div>
+
+        <p class="relative mt-10 hidden text-[11px] text-ink-500 lg:block">
+          &copy; <%= Time.current.year %> <%= Catalog::COMPANY[:legal_name] %>
+        </p>
+      </section>
+
+      <main class="flex items-center justify-center px-5 py-12 sm:px-10">
+        <div class="w-full max-w-sm">
+          <%= render "admin/shared/flash" %>
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

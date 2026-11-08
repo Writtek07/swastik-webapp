@@ -1,0 +1,111 @@
+<% content_for :title, "Edit #{@product.title_was} · Admin" %>
+
+<%= link_to admin_product_path(@product), class: "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-ink-500 hover:text-ink-900" do %>
+  <%= icon "arrow-left", class: "h-3.5 w-3.5" %> <%= @product.title_was %>
+<% end %>
+<h1 class="admin-title mt-3">Edit product</h1>
+<p class="mt-2 text-sm text-ink-500">
+  Changes go live on the public catalogue as soon as they're saved.
+  The URL (<code class="font-mono text-xs">/products/<%= @product.slug %></code>) and category key stay fixed.
+</p>
+
+<%= form_with model: @product, url: admin_product_path(@product), method: :patch, class: "mt-8 max-w-4xl" do |f| %>
+  <% if @product.errors.any? %>
+    <div class="mb-6 rounded-[3px] border border-ember-500/30 bg-ember-50 px-4 py-3 text-sm text-ember-800" role="alert">
+      <p class="font-semibold">The product wasn't saved:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% @product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <section class="admin-card">
+    <div class="admin-card__head">
+      <h2 class="font-display text-lg font-extrabold tracking-tight text-ink-950">Basics</h2>
+    </div>
+    <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+      <%= f.label :title, class: "field" do %>
+        <span>Title</span>
+        <%= f.text_field :title, required: true, class: "admin-input" %>
+      <% end %>
+      <%= f.label :eyebrow, class: "field" do %>
+        <span>Eyebrow</span>
+        <%= f.text_field :eyebrow, class: "admin-input", placeholder: "Short line shown above the title" %>
+      <% end %>
+      <%= f.label :category, class: "field" do %>
+        <span>Category</span>
+        <%= f.text_field :category, required: true, class: "admin-input" %>
+      <% end %>
+      <%= f.label :position, class: "field" do %>
+        <span>Position</span>
+        <%= f.number_field :position, min: 0, step: 1, class: "admin-input" %>
+      <% end %>
+      <%= f.label :image_url, class: "field sm:col-span-2" do %>
+        <span>Image URL</span>
+        <%= f.url_field :image_url, class: "admin-input", placeholder: "https://…" %>
+      <% end %>
+      <%= f.label :summary, class: "field sm:col-span-2" do %>
+        <span>Summary</span>
+        <%= f.text_area :summary, rows: 2, class: "admin-input" %>
+      <% end %>
+      <%= f.label :description, class: "field sm:col-span-2" do %>
+        <span>Description</span>
+        <%= f.text_area :description, rows: 5, class: "admin-input" %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="admin-card mt-6">
+    <div class="admin-card__head">
+      <h2 class="font-display text-lg font-extrabold tracking-tight text-ink-950">Pricing</h2>
+    </div>
+    <div class="p-5 sm:p-6">
+      <%= f.label :has_guage_price, class: "flex cursor-pointer items-start gap-3" do %>
+        <%= f.check_box :has_guage_price, class: "mt-0.5 h-4 w-4 shrink-0 accent-ember-500" %>
+        <span>
+          <span class="block text-sm font-semibold text-ink-900">Has gauge price</span>
+          <span class="mt-0.5 block text-xs text-ink-500">
+            Adds this product to the yearly gauge price sheet, with one rate per size listed below.
+            Turning it off hides it from the sheet but keeps any rates already entered.
+          </span>
+        </span>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="admin-card mt-6">
+    <div class="admin-card__head">
+      <div>
+        <h2 class="font-display text-lg font-extrabold tracking-tight text-ink-950">Lists</h2>
+        <p class="mt-0.5 text-xs text-ink-500">One entry per line. Specifications are written as <code class="font-mono">Label: value</code>.</p>
+      </div>
+    </div>
+    <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+      <%= f.label :specs_text, class: "field sm:col-span-2" do %>
+        <span>Specifications</span>
+        <%= f.text_area :specs_text, rows: 6, class: "admin-input font-mono text-xs", placeholder: "Grade: Fe 500D" %>
+      <% end %>
+      <%= f.label :sizes_text, class: "field" do %>
+        <span>Sizes</span>
+        <%= f.text_area :sizes_text, rows: 6, class: "admin-input font-mono text-xs" %>
+      <% end %>
+      <%= f.label :tags_text, class: "field" do %>
+        <span>Tags</span>
+        <%= f.text_area :tags_text, rows: 6, class: "admin-input" %>
+      <% end %>
+      <%= f.label :applications_text, class: "field sm:col-span-2" do %>
+        <span>Typical applications</span>
+        <%= f.text_area :applications_text, rows: 4, class: "admin-input" %>
+      <% end %>
+    </div>
+  </section>
+
+  <div class="mt-6 flex items-center gap-3">
+    <%= f.button type: "submit", class: "btn-primary" do %>
+      Save changes <%= icon "check" %>
+    <% end %>
+    <%= link_to "Cancel", admin_product_path(@product), class: "btn-outline" %>
+  </div>
+<% end %>

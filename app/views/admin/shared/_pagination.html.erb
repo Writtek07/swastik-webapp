@@ -1,0 +1,13 @@
+<%#
+  Footer for a paginated admin table: "Showing x–y of z" plus page links.
+  Locals: pagy (Pagy), item_name (plural noun, e.g. "entries")
+%>
+<% if pagy.count.positive? %>
+  <div class="flex flex-col gap-3 border-t border-ink-900/10 bg-sand-50 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <p class="text-xs text-ink-500">
+      Showing <span class="font-semibold text-ink-800"><%= pagy.from %>–<%= pagy.to %></span>
+      of <span class="font-semibold text-ink-800"><%= pagy.count %></span> <%= item_name %>
+    </p>
+    <%== pagy_nav(pagy, aria_label: "#{item_name.capitalize} pages") if pagy.pages > 1 %>
+  </div>
+<% end %>

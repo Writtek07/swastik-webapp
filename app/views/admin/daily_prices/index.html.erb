@@ -1,0 +1,220 @@
+<% content_for :title, "Daily prices · Admin" %>
+<% today = @date == Date.current %>
+<% priced = @products.count { |product| @prices[product.id] } %>
+
+<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+  <div>
+    <p class="micro">Price desk</p>
+    <h1 class="admin-title mt-2">Daily prices</h1>
+    <p class="mt-2 text-sm text-ink-500">
+      <%= today ? "Today's sheet" : "Sheet for" %> ·
+      <span class="font-semibold text-ink-800"><%= l @date, format: "%A, %-d %B %Y" %></span>
+    </p>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-2">
+    <%= link_to admin_daily_prices_path(priced_on: @date - 1), class: "icon-btn", aria: { label: "Previous day" } do %>
+      <%= icon "arrow-left", class: "h-4 w-4" %>
+    <% end %>
+
+    <%= form_with url: admin_daily_prices_path, method: :get, class: "flex items-center gap-2", data: { controller: "autosubmit" } do |f| %>
+      <%= f.date_field :priced_on, value: @date, max: Date.current, class: "admin-input w-auto", aria: { label: "Sheet date" },
+            data: { action: "change->autosubmit#submit" } %>
+      <noscript><%= f.submit "Go", class: "btn-outline btn-sm" %></noscript>
+    <% end %>
+
+    <% if today %>
+      <span class="icon-btn pointer-events-none opacity-40" aria-hidden="true"><%= icon "arrow-right", class: "h-4 w-4" %></span>
+    <% else %>
+      <%= link_to admin_daily_prices_path(priced_on: @date + 1), class: "icon-btn", aria: { label: "Next day" } do %>
+        <%= icon "arrow-right", class: "h-4 w-4" %>
+      <% end %>
+      <%= link_to "Today", admin_daily_prices_path, class: "btn-outline btn-sm" %>
+    <% end %>
+  </div>
+</div>
+
+<%# ---------------------------------------------------------------- Entry sheet %>
+<section class="admin-card mt-8" aria-labelledby="sheet-heading">
+  <div class="admin-card__head">
+    <div>
+      <h2 id="sheet-heading" class="font-display text-lg font-extrabold tracking-tight text-ink-950">Enter prices</h2>
+      <p class="mt-0.5 text-xs text-ink-500">Leave a row blank to skip it. Saved rows keep the name of the admin who first entered them.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="h-1.5 w-28 overflow-hidden rounded-full bg-ink-900/10" aria-hidden="true">
+        <div class="h-full bg-ember-500" style="width: <%= @products.any? ? (priced * 100 / @products.size) : 0 %>%"></div>
+      </div>
+      <span class="text-xs font-bold text-ink-700"><%= priced %> / <%= @products.size %> priced</span>
+    </div>
+  </div>
+
+  <% if @products.empty? %>
+    <p class="px-6 py-12 text-center text-sm text-ink-500">No products yet. Run <code>bin/rails db:seed</code> to load the catalogue.</p>
+  <% else %>
+    <%= form_with url: admin_daily_prices_path, method: :post do |f| %>
+      <%= hidden_field_tag :priced_on, @date %>
+
+      <div class="overflow-x-auto">
+        <table class="admin-table min-w-[960px]">
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col" class="text-right">Last price</th>
+              <th scope="col" class="w-44">Price</th>              
+              <th scope="col">Notes</th>
+              <th scope="col">Entered by</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @products.each do |product| %>
+              <% entry = @prices[product.id] %>
+              <% previous = @previous[product.id] %>
+              <% field = "prices[#{product.id}]" %>
+              <tr>
+                <td>
+                  <p class="font-semibold text-ink-900"><%= product.title %></p>
+                  <p class="text-xs text-ink-500"><%= product.category %><%= " · #{product.grade}" if product.grade %></p>
+                </td>
+                <td class="text-right">
+                  <% if previous %>
+                    <p class="font-semibold text-ink-700"><%= inr previous.price %></p>
+                    <p class="text-[11px] text-ink-400"><%= l previous.priced_on, format: "%-d %b" %></p>
+                  <% else %>
+                    <span class="text-xs text-ink-400">—</span>
+                  <% end %>
+                </td>
+                <td>
+                  <div class="relative">
+                    <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-semibold text-ink-400">₹</span>
+                    <%= number_field_tag "#{field}[price]", entry&.price, min: 0, step: "0.01", inputmode: "decimal",
+                          placeholder: previous&.price&.to_s, class: "admin-input admin-input--price",
+                          aria: { label: "#{product.title} price" } %>
+                  </div>
+                  <% if entry && previous %>
+                    <div class="mt-1.5 text-right"><%= price_change_badge(entry.price - previous.price, previous: previous.price) %></div>
+                  <% end %>
+                </td>                
+                <td>
+                  <%= text_field_tag "#{field}[notes]", entry&.notes, maxlength: 200, placeholder: "Optional",
+                        class: "admin-input", aria: { label: "#{product.title} notes" } %>
+                </td>
+                <td>
+                  <% if entry %>
+                    <div class="flex items-center gap-2.5">
+                      <%= admin_avatar entry.admin %>
+                      <div class="leading-tight">
+                        <p class="text-[13px] font-semibold text-ink-800"><%= entry.admin.display_name %></p>
+                        <p class="text-[11px] text-ink-400">
+                          <%= l entry.created_at, format: "%-d %b, %H:%M" %><%= " · edited #{l entry.updated_at, format: '%H:%M'}" if entry.edited? %>
+                        </p>
+                      </div>
+                    </div>
+                  <% else %>
+                    <span class="admin-pill bg-ink-900/[0.05] text-ink-400">Not priced</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-col gap-3 border-t border-ink-900/10 bg-sand-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <p class="flex items-center gap-2 text-xs text-ink-500">
+          <%= admin_avatar current_admin, size: "h-6 w-6 text-[9px]" %>
+          New entries will be recorded as <span class="font-semibold text-ink-800"><%= current_admin.display_name %></span>
+        </p>
+        <%= f.button type: "submit", class: "btn-primary" do %>
+          Save prices for <%= l @date, format: "%-d %b" %> <%= icon "check", class: "h-4 w-4" %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</section>
+
+<%# ---------------------------------------------------------------- History %>
+<section class="admin-card mt-10" aria-labelledby="history-heading" id="history">
+  <%# The frame scopes filter, range and page navigation to this card, and
+      `advance` keeps the URL in sync so a filtered page can be bookmarked. %>
+  <%= turbo_frame_tag "price_history", data: { turbo_action: "advance" } do %>
+    <div class="admin-card__head">
+      <div>
+        <h2 id="history-heading" class="font-display text-lg font-extrabold tracking-tight text-ink-950">Price history</h2>
+        <p class="mt-0.5 text-xs text-ink-500">
+          <%= pluralize @pagy.count, "entry" %> in the last <%= @history_days %> days<%= " for #{@history_product.title}" if @history_product %>.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <%= form_with url: admin_daily_prices_path(anchor: "history"), method: :get, data: { controller: "autosubmit" } do |f| %>
+          <%= hidden_field_tag :priced_on, @date unless today %>
+          <%= hidden_field_tag :days, @history_days %>
+          <%= select_tag :product_id, options_from_collection_for_select(@products, :id, :title, @history_product&.id),
+                include_blank: "All products", class: "admin-input w-auto py-1.5 text-xs", aria: { label: "Filter by product" },
+                data: { action: "change->autosubmit#submit" } %>
+          <noscript><%= f.submit "Filter", class: "btn-outline btn-sm" %></noscript>
+        <% end %>
+
+        <nav class="admin-segment" aria-label="History range">
+          <% Admin::DailyPricesController::HISTORY_WINDOWS.each do |days| %>
+            <%= link_to "#{days}d", admin_daily_prices_path(priced_on: (today ? nil : @date), days: days, product_id: @history_product&.id, anchor: "history"),
+                  aria: { current: (days == @history_days).to_s } %>
+          <% end %>
+        </nav>
+      </div>
+    </div>
+
+    <% if @history.empty? %>
+      <div class="px-6 py-14 text-center">
+        <%= icon "calendar", class: "mx-auto h-8 w-8 text-ink-300" %>
+        <p class="mt-3 text-sm font-semibold text-ink-700">No prices recorded in this range yet</p>
+        <p class="mt-1 text-xs text-ink-500">Entries saved from the sheet above will appear here.</p>
+      </div>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="admin-table min-w-[860px]">
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col" class="text-right">Price</th>            
+              <th scope="col">Change</th>
+              <th scope="col">Notes</th>
+              <th scope="col">Entered by</th>
+              <th scope="col" class="text-right">Saved</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @history_by_day.each do |day, entries| %>
+              <tr class="admin-table__group">
+                <td colspan="7">
+                  <%= link_to l(day, format: "%a, %-d %b %Y"), admin_daily_prices_path(priced_on: day), class: "hover:text-ember-600", data: { turbo_frame: "_top" } %>
+                  <span class="ml-2 font-semibold normal-case tracking-normal text-ink-400"><%= pluralize entries.size, "price" %></span>
+                </td>
+              </tr>
+              <% entries.each do |entry| %>
+                <tr>
+                  <td class="font-semibold text-ink-900"><%= entry.product.title %></td>
+                  <td class="text-right font-semibold text-ink-900"><%= inr entry.price %></td>                
+                  <td><%= price_change_badge(entry.change, previous: entry[:previous_price]) %></td>
+                  <td class="max-w-56 truncate text-ink-500" title="<%= entry.notes %>"><%= entry.notes.presence || "—" %></td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <%= admin_avatar entry.admin, size: "h-6 w-6 text-[9px]" %>
+                      <span class="text-[13px] font-medium text-ink-700"><%= entry.admin.display_name %></span>
+                    </div>
+                  </td>
+                  <td class="whitespace-nowrap text-right text-xs text-ink-400">
+                    <%= l entry.created_at, format: "%-d %b, %H:%M" %>
+                    <% if entry.edited? %><span class="block text-[10px]">edited <%= l entry.updated_at, format: "%-d %b, %H:%M" %></span><% end %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "admin/shared/pagination", pagy: @pagy, item_name: "entries" %>
+    <% end %>
+  <% end %>
+</section>

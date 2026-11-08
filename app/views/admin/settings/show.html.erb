@@ -1,0 +1,73 @@
+<% content_for :title, "Settings · Admin" %>
+<% editable = admin_can?(:settings, :update) %>
+
+<p class="micro">Company</p>
+<h1 class="admin-title mt-2">Settings</h1>
+<p class="mt-2 text-sm text-ink-500">
+  Billing details used across the price desk.
+  <%= editable ? "Owners and super users can change them." : "Only owners and super users can change them." %>
+</p>
+
+<%= form_with model: @setting, url: admin_settings_path, method: :patch, class: "mt-8 max-w-3xl" do |f| %>
+  <% if @setting.errors.any? %>
+    <div class="mb-6 rounded-[3px] border border-ember-500/30 bg-ember-50 px-4 py-3 text-sm text-ember-800" role="alert">
+      <p class="font-semibold">Settings weren't saved:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% @setting.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <section class="admin-card">
+    <div class="admin-card__head">
+      <h2 class="font-display text-lg font-extrabold tracking-tight text-ink-950">Billing</h2>
+      <% if @setting.updated_by %>
+        <div class="flex items-center gap-2.5" id="settings-last-updated">
+          <%= admin_avatar @setting.updated_by, size: "h-7 w-7 text-[9px]" %>
+          <div class="leading-tight">
+            <p class="text-[13px] font-semibold text-ink-800">Last updated by <%= @setting.updated_by.display_name %></p>
+            <p class="text-[11px] text-ink-400"><%= l @setting.updated_at, format: "%-d %b %Y, %H:%M" %></p>
+          </div>
+        </div>
+      <% else %>
+        <p class="text-xs text-ink-400" id="settings-last-updated">Not saved yet</p>
+      <% end %>
+    </div>
+
+    <fieldset class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6" <%= "disabled" unless editable %>>
+      <%= f.label :gstn, class: "field sm:col-span-2" do %>
+        <span>GSTIN</span>
+        <%= f.text_field :gstn, maxlength: 15, autocomplete: "off", spellcheck: false, placeholder: "22AAAAA0000A1Z5",
+              class: "admin-input font-mono uppercase tracking-wider disabled:bg-sand-50 disabled:text-ink-500" %>
+      <% end %>
+      <%= f.label :gst_percent, class: "field" do %>
+        <span>GST rate</span>
+        <div class="relative">
+          <%= f.number_field :gst_percent, min: 0, max: 100, step: "0.01", inputmode: "decimal", placeholder: "18",
+                value: @setting.gst_percent && number_with_precision(@setting.gst_percent, precision: 2, strip_insignificant_zeros: true),
+                class: "admin-input pr-8 text-right font-semibold disabled:bg-sand-50 disabled:text-ink-500" %>
+          <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm font-semibold text-ink-400">%</span>
+        </div>
+      <% end %>
+      <%= f.label :loading_charges, class: "field" do %>
+        <span>Loading charges</span>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-semibold text-ink-400">₹</span>
+          <%= f.number_field :loading_charges, min: 0, step: "0.01", inputmode: "decimal", placeholder: "0",
+                value: @setting.loading_charges && number_with_precision(@setting.loading_charges, precision: 2, strip_insignificant_zeros: true),
+                class: "admin-input admin-input--price disabled:bg-sand-50 disabled:text-ink-500" %>
+        </div>
+      <% end %>
+    </fieldset>
+
+    <% if editable %>
+      <div class="flex justify-end border-t border-ink-900/10 bg-sand-50 px-5 py-4 sm:px-6">
+        <%= f.button type: "submit", class: "btn-primary" do %>
+          Save settings <%= icon "check" %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+<% end %>

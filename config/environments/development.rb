@@ -40,6 +40,11 @@ Rails.application.configure do
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
 
+  # `lvh.me` and its subdomains resolve to 127.0.0.1, which is how the admin
+  # subdomain is reached locally (admin.lvh.me:3100).
+  config.hosts << "lvh.me"
+  config.hosts << ".lvh.me"
+
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 

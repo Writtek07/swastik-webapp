@@ -1,0 +1,88 @@
+<% content_for :title, "Overview · Admin" %>
+<% remaining = @total_count - @priced_count %>
+
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="micro">Overview</p>
+    <h1 class="admin-title mt-2">Good <%= Time.current.hour < 12 ? "morning" : (Time.current.hour < 17 ? "afternoon" : "evening") %>, <%= current_admin.display_name.split.first %></h1>
+    <p class="mt-2 text-sm text-ink-500">Here's where today's price sheet stands.</p>
+  </div>
+  <%= link_to admin_daily_prices_path, class: "btn-primary" do %>
+    <%= remaining.positive? ? "Enter today's prices" : "Review today's sheet" %> <%= icon "arrow-right", class: "h-4 w-4" %>
+  <% end %>
+</div>
+
+<div class="mt-8 grid gap-4 sm:grid-cols-3">
+  <div class="admin-card p-5">
+    <p class="micro">Priced today</p>
+    <p class="mt-3 font-display text-4xl font-extrabold text-ink-950"><%= @priced_count %><span class="text-xl text-ink-400"> / <%= @total_count %></span></p>
+    <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-ink-900/10">
+      <div class="h-full bg-ember-500" style="width: <%= @total_count.positive? ? (@priced_count * 100 / @total_count) : 0 %>%"></div>
+    </div>
+  </div>
+  <div class="admin-card p-5">
+    <p class="micro">Still to price</p>
+    <p class="mt-3 font-display text-4xl font-extrabold <%= remaining.positive? ? 'text-ember-600' : 'text-emerald-600' %>"><%= remaining %></p>
+    <p class="mt-3 text-xs text-ink-500"><%= remaining.positive? ? "product #{'family'.pluralize(remaining)} without a price" : "Every product is priced for today" %></p>
+  </div>
+  <div class="admin-card p-5">
+    <p class="micro">Your last sign-in</p>
+    <p class="mt-3 font-display text-xl font-extrabold text-ink-950">
+      <%= current_admin.last_sign_in_at ? l(current_admin.last_sign_in_at, format: "%-d %b, %H:%M") : "First visit" %>
+    </p>
+    <p class="mt-3 text-xs text-ink-500"><%= pluralize current_admin.sign_in_count, "sign-in" %> in total</p>
+  </div>
+</div>
+
+<div class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+  <section class="admin-card">
+    <div class="admin-card__head">
+      <h2 class="font-display text-lg font-extrabold tracking-tight text-ink-950">Today's sheet</h2>
+      <%= link_to "Open sheet", admin_daily_prices_path, class: "link-arrow text-xs font-bold text-ember-600" %>
+    </div>
+    <table class="admin-table">
+      <tbody>
+        <% @products.each do |product| %>
+          <% entry = @prices[product.id] %>
+          <tr>
+            <td class="font-semibold text-ink-900"><%= product.title %></td>
+            <td class="text-right">
+              <% if entry %>
+                <span class="font-semibold text-ink-900"><%= inr entry.price %></span>
+              <% else %>
+                <span class="admin-pill bg-ember-500/10 text-ember-700">Pending</span>
+              <% end %>
+            </td>
+            <td class="w-10"><%= admin_avatar(entry.admin, size: "h-6 w-6 text-[9px]") if entry %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="admin-card">
+    <div class="admin-card__head">
+      <h2 class="font-display text-lg font-extrabold tracking-tight text-ink-950">Recent activity</h2>
+      <%= link_to "Full history", admin_daily_prices_path(anchor: "history"), class: "link-arrow text-xs font-bold text-ember-600" %>
+    </div>
+    <% if @recent.empty? %>
+      <p class="px-6 py-10 text-center text-sm text-ink-500">No prices have been entered yet.</p>
+    <% else %>
+      <ul class="divide-y divide-ink-900/[0.06]">
+        <% @recent.each do |entry| %>
+          <li class="flex items-center gap-3 px-5 py-3 sm:px-6">
+            <%= admin_avatar entry.admin %>
+            <div class="min-w-0 flex-1 text-sm">
+              <p class="truncate text-ink-700">
+                <span class="font-semibold text-ink-900"><%= entry.admin.display_name %></span>
+                priced <span class="font-semibold text-ink-900"><%= entry.product.title %></span>
+              </p>
+              <p class="text-[11px] text-ink-400">for <%= l entry.priced_on, format: "%-d %b" %> · <%= time_ago_in_words(entry.updated_at) %> ago</p>
+            </div>
+            <span class="whitespace-nowrap text-sm font-semibold text-ink-900"><%= inr entry.price %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+</div>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "Admin · #{Catalog::COMPANY[:name]}" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0b0e14">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= render "shared/favicons" %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap">
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="min-h-screen bg-sand-100 dark:bg-ink-950">
+    <a href="#admin-main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[3px] focus:bg-ink-950 focus:px-4 focus:py-2 focus:text-xs focus:font-bold focus:uppercase focus:tracking-widest focus:text-white">
+      Skip to content
+    </a>
+
+    <div class="flex min-h-screen flex-col lg:flex-row">
+      <%= render "admin/shared/sidebar" %>
+
+      <div class="flex min-w-0 flex-1 flex-col">
+        <%= render "admin/shared/topbar" %>
+
+        <main id="admin-main" class="flex-1 px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+          <%= render "admin/shared/flash" %>
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

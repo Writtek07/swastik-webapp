@@ -1,0 +1,24 @@
+<%#
+  Photo for a Catalog::APPLICATIONS entry, falling back to its SVG plate when no
+  photo is set. Locals: application (hash), ratio (aspect utility class)
+%>
+<% ratio ||= "!aspect-[16/10]" %>
+<% if application[:image].present? %>
+  <div class="plate <%= ratio %>">
+    <%= image_tag unsplash_url(application[:image], width: 900, height: 560),
+          srcset: "#{unsplash_url(application[:image], width: 600, height: 375)} 600w, #{unsplash_url(application[:image], width: 900, height: 560)} 900w",
+          sizes: "(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 92vw",
+          alt: application[:alt],
+          loading: "lazy",
+          decoding: "async",
+          class: "absolute inset-0 z-[1] h-full w-full object-cover transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.06]" %>
+    <div class="absolute inset-0 z-[2] bg-gradient-to-t from-ink-950/70 via-transparent to-ink-950/20"></div>
+  </div>
+<% else %>
+  <div class="plate <%= ratio %>">
+    <div class="plate-grid"></div>
+    <div class="plate-art text-white">
+      <%= render "shared/visuals/#{application[:visual]}" %>
+    </div>
+  </div>
+<% end %>

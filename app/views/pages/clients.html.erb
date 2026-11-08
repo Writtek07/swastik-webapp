@@ -1,5 +1,5 @@
-<% content_for :title, page_title("Clients & approvals") %>
-<% content_for :description, "Government, infrastructure and industrial clients supplied by Swastik Enterprise, plus our registrations and approvals." %>
+<% content_for :title, page_title("Clients & Approvals — ISO, BIS & RDSO") %>
+<% content_for :description, "Government, infrastructure and industrial clients supplied by #{Catalog::COMPANY[:name]}, with ISO 9001:2015, BIS-licensed reinforcement steel and RDSO-approved supply categories." %>
 
 <div data-controller="reveal">
   <%= render "shared/page_hero",
@@ -84,14 +84,9 @@
 
       <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <% @applications.each_with_index do |application, index| %>
-          <article class="reveal card card-accent" data-reveal-target="item" style="--delay:<%= index * 80 %>ms">
+          <article class="reveal card card-accent group" data-reveal-target="item" style="--delay:<%= index * 80 %>ms">
             <div class="p-3">
-              <div class="plate !aspect-[16/11]">
-                <div class="plate-grid"></div>
-                <div class="plate-art text-white">
-                  <%= render "shared/visuals/#{application[:visual]}" %>
-                </div>
-              </div>
+              <%= render "shared/application_media", application: application, ratio: "!aspect-[16/11]" %>
             </div>
             <div class="flex flex-1 flex-col p-6 pt-3">
               <h3 class="font-display text-base font-bold tracking-[-0.01em]"><%= application[:title] %></h3>
