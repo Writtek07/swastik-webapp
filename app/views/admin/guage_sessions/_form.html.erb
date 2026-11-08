@@ -1,0 +1,37 @@
+<%# Start/end dates for a gauge session. Locals: guage_session, submit_label %>
+<%= form_with model: guage_session, url: (guage_session.persisted? ? admin_guage_session_path(guage_session) : admin_guage_sessions_path), class: "mt-8 max-w-2xl" do |f| %>
+  <% if guage_session.errors.any? %>
+    <div class="mb-6 rounded-[3px] border border-ember-500/30 bg-ember-50 px-4 py-3 text-sm text-ember-800" role="alert">
+      <p class="font-semibold">The session wasn't saved:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% guage_session.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <section class="admin-card">
+    <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+      <%= f.label :starts_on, class: "field" do %>
+        <span>Starts on</span>
+        <%= f.date_field :starts_on, required: true, class: "admin-input" %>
+      <% end %>
+      <%= f.label :ends_on, class: "field" do %>
+        <span>Ends on</span>
+        <%= f.date_field :ends_on, required: true, class: "admin-input" %>
+      <% end %>
+      <p class="text-xs text-ink-500 sm:col-span-2">
+        Both dates are included. A session can run up to a year and can't overlap another session.
+        Gauge prices can only be entered or updated while the session is in progress.
+      </p>
+    </div>
+  </section>
+
+  <div class="mt-6 flex items-center gap-3">
+    <%= f.button type: "submit", class: "btn-primary" do %>
+      <%= submit_label %> <%= icon "check" %>
+    <% end %>
+    <%= link_to "Cancel", admin_guage_prices_path(session_id: guage_session.persisted? ? guage_session.id : nil), class: "btn-outline" %>
+  </div>
+<% end %>

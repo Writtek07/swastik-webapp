@@ -1,0 +1,47 @@
+<% content_for :title, "Staff · Admin" %>
+
+<p class="micro">Team</p>
+<h1 class="admin-title mt-2">Staff</h1>
+<p class="mt-2 text-sm text-ink-500">Everyone with a back-office account. Inactive admins can't sign in but keep their price history.</p>
+
+<%= render "admin/staff/summary" %>
+
+<%= turbo_frame_tag "staff_roster", data: { turbo_action: "advance" } do %>
+  <section class="admin-card mt-8">
+    <div class="admin-card__head">
+      <h2 class="font-display text-lg font-extrabold tracking-tight text-ink-950">Roster</h2>
+      <nav class="admin-segment" aria-label="Filter by status">
+        <%= link_to "All", admin_staff_path, aria: { current: @status.nil? } %>
+        <% Admin.statuses.each_key do |status| %>
+          <%= link_to status.humanize, admin_staff_path(status: status), aria: { current: @status == status } %>
+        <% end %>
+      </nav>
+    </div>
+
+    <% if @admins.empty? %>
+      <p class="px-6 py-12 text-center text-sm text-ink-500">No <%= @status %> admins.</p>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="admin-table min-w-[860px]">
+          <thead>
+            <tr>
+              <th scope="col">Admin</th>
+              <th scope="col">Role</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-right">Prices entered</th>
+              <th scope="col" class="text-right">Sign-ins</th>
+              <th scope="col">Last active</th>
+              <th scope="col">Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @admins.each do |admin| %>
+              <%= render "admin/staff/admin_row", admin: admin %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "admin/shared/pagination", pagy: @pagy, item_name: "admins" %>
+    <% end %>
+  </section>
+<% end %>

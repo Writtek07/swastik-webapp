@@ -1,0 +1,35 @@
+<%#
+  Product media — the photograph for a family when one is on file, otherwise the
+  SVG blueprint plate. Both carry the same eyebrow / code overlay so the
+  catalogue grid stays visually consistent either way.
+
+  Locals:
+    product — a Product record
+    code    — optional plate code shown top-right (defaults to the slug prefix)
+    ratio   — optional aspect utility class (defaults to the plate's 4/3)
+%>
+<% code ||= nil %>
+<% ratio ||= nil %>
+<% label = code || product.slug.first(3).upcase %>
+
+<% if product.image_url.present? %>
+  <div class="plate <%= ratio %>">
+    <%= image_tag product.image_url,
+          alt: "#{product.title} — #{product.category}",
+          loading: "lazy",
+          decoding: "async",
+          class: "absolute inset-0 z-[1] h-full w-full object-cover" %>
+    <div class="absolute inset-0 z-[2] bg-gradient-to-t from-ink-950/85 via-ink-950/25 to-ink-950/45"></div>
+    <span class="plate-label"><%= product.eyebrow %></span>
+    <span class="plate-code"><%= label %></span>
+  </div>
+<% else %>
+  <div class="plate <%= ratio %>">
+    <div class="plate-grid"></div>
+    <span class="plate-label"><%= product.eyebrow %></span>
+    <span class="plate-code"><%= label %></span>
+    <div class="plate-art text-white">
+      <%= render "shared/visuals/#{product.visual}" %>
+    </div>
+  </div>
+<% end %>

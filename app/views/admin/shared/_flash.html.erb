@@ -1,0 +1,16 @@
+<%# Flash strip for the admin console; sits at the top of the main column. %>
+<% flash.each do |type, message| %>
+  <% next if message.blank? || !message.is_a?(String) %>
+  <% success = type.to_s == "notice" %>
+  <div
+    class="mb-6 flex items-start gap-3 rounded-[3px] border px-4 py-3 text-sm font-medium <%= success ? 'border-emerald-500/30 bg-emerald-50 text-emerald-800' : 'border-ember-500/30 bg-ember-50 text-ember-800' %>"
+    role="<%= success ? 'status' : 'alert' %>"
+    data-controller="dismiss"
+  >
+    <%= icon(success ? "check-circle" : "shield", class: "mt-0.5 h-4 w-4 shrink-0") %>
+    <p class="flex-1"><%= message %></p>
+    <button type="button" class="shrink-0 opacity-60 transition-opacity hover:opacity-100" aria-label="Dismiss" data-action="click->dismiss#close">
+      <%= icon "close", class: "h-4 w-4" %>
+    </button>
+  </div>
+<% end %>

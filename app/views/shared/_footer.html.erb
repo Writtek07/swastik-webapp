@@ -1,15 +1,9 @@
 <footer class="relative z-10 mt-24 border-t border-ink-900/10 bg-ink-950 text-ink-300 dark:border-white/10">
   <div class="shell grid gap-12 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:py-20">
     <div>
-      <div class="flex items-center gap-3">
-        <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ember-600 text-white">
-          <%= icon "bolt", class: "h-5 w-5", stroke: 1.8 %>
-        </span>
-        <span class="leading-none">
-          <span class="block font-display text-[15px] font-extrabold uppercase tracking-[0.2em] text-white">Swastik</span>
-          <span class="mt-1 block text-[9px] font-bold uppercase tracking-[0.28em] text-ink-400">Enterprise · Steel</span>
-        </span>
-      </div>
+      <%= link_to root_path, class: "inline-flex", aria: { label: "#{Catalog::COMPANY[:name]} home" } do %>
+        <%= brand_lockup on: :dark, css: "h-11 w-auto" %>
+      <% end %>
       <p class="mt-6 max-w-sm text-sm leading-7 text-ink-400"><%= Catalog::COMPANY[:summary] %></p>
       <div class="mt-6 flex gap-2">
         <% Catalog::COMPANY[:social].each do |social| %>
@@ -34,8 +28,8 @@
     <div>
       <p class="micro text-ink-500">Products</p>
       <ul class="mt-5 space-y-3 text-sm">
-        <% Catalog::PRODUCTS.first(6).each do |product| %>
-          <li><%= link_to product[:title], product_path_for(product), class: "transition-colors hover:text-ember-400" %></li>
+        <% Product.ordered.limit(6).each do |product| %>
+          <li><%= link_to product.title, product_path_for(product), class: "transition-colors hover:text-ember-400" %></li>
         <% end %>
         <li><%= link_to "All products", products_path, class: "font-semibold text-ember-400" %></li>
       </ul>

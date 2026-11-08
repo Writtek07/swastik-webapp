@@ -1,5 +1,18 @@
-<% content_for :title, page_title("Products") %>
-<% content_for :description, "Structural steel, TMT reinforcement, tubes, pipes, sheets and plates — browse the Swastik Enterprise catalogue by family and size." %>
+<% content_for :title, page_title("Steel Products: Beams, TMT, Pipes & Plates") %>
+<% content_for :description, "Browse the #{Catalog::COMPANY[:name]} steel catalogue: parallel flange beams, channels, angles, MS flats, TMT rebars, ERW tubes, MS pipes, sheets and plates, by size and grade." %>
+<% page_type "CollectionPage" %>
+<% analytics_event "view_item_list", item_list_id: @active_category || "all", item_list_name: "Catalogue",
+                   items: @products.each_with_index.map { |product, index| analytics_item(product, index: index) } %>
+<% structured_data(
+     "@type" => "ItemList",
+     "@id" => "#{canonical_url}#products",
+     "name" => "#{Catalog::COMPANY[:name]} steel products",
+     "numberOfItems" => @products.size,
+     "itemListElement" => @products.each_with_index.map { |product, index|
+       { "@type" => "ListItem", "position" => index + 1, "name" => product.title,
+         "url" => absolute_url(product_path(product.slug)) }
+     }
+   ) %>
 
 <div data-controller="reveal">
   <%= render "shared/page_hero",
@@ -29,7 +42,7 @@
         </div>
         <p class="text-sm text-ink-500 dark:text-ink-400">
           Showing <span class="font-bold text-ink-900 dark:text-white" data-catalog-target="count"><%= @products.length %></span>
-          of <%= Catalog::PRODUCTS.length %> families
+          of <%= Product.count %> families
         </p>
       </div>
 
@@ -59,7 +72,7 @@
 
       <%# --------------------------------------------------------- Grid %>
       <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        <% Catalog::PRODUCTS.each_with_index do |product, index| %>
+        <% Product.ordered.each_with_index do |product, index| %>
           <%= render "shared/product_card", product: product, index: index %>
         <% end %>
       </div>

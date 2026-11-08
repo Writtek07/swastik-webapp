@@ -24,11 +24,23 @@ export default class extends Controller {
       { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
     )
 
-    this.itemTargets.forEach((el) => this.observer.observe(el))
+    // Behind the first-visit preloader the hero is already "in view", so its
+    // entrance would finish unseen. Start observing when the curtain lifts.
+    if (document.documentElement.classList.contains("is-preloading")) {
+      this.onPreloaderDone = () => this.observeItems()
+      window.addEventListener("preloader:done", this.onPreloaderDone, { once: true })
+    } else {
+      this.observeItems()
+    }
   }
 
   disconnect() {
     this.observer?.disconnect()
+    if (this.onPreloaderDone) window.removeEventListener("preloader:done", this.onPreloaderDone)
+  }
+
+  observeItems() {
+    this.itemTargets.forEach((el) => this.observer.observe(el))
   }
 
   get prefersReducedMotion() {

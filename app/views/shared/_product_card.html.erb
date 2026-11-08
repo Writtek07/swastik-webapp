@@ -7,22 +7,24 @@
   class="card card-accent reveal group"
   data-reveal-target="item"
   data-catalog-target="card"
-  data-category="<%= product[:key] %>"
+  data-category="<%= product.key %>"
+  data-analytics-item-name="<%= product.title %>"
+  data-analytics-item-category="<%= product.category %>"
   style="--delay:<%= (index % 3) * 80 %>ms"
 >
   <div class="p-3">
-    <%= render "shared/product_visual", product: product, code: "P#{format('%02d', index + 1)}" %>
+    <%= render "shared/product_media", product: product, code: "P#{format('%02d', index + 1)}" %>
   </div>
 
   <div class="flex flex-1 flex-col p-6 pt-3">
-    <p class="micro text-ember-600 dark:text-ember-400"><%= product[:category] %></p>
+    <p class="micro text-ember-600 dark:text-ember-400"><%= product.category %></p>
     <h3 class="subheading mt-3">
-      <%= link_to product[:title], product_path_for(product), class: "transition-colors hover:text-ember-600 dark:hover:text-ember-400" %>
+      <%= link_to product.title, product_path_for(product), class: "transition-colors hover:text-ember-600 dark:hover:text-ember-400" %>
     </h3>
-    <p class="body-text mt-3 flex-1"><%= product[:summary] %></p>
+    <p class="body-text mt-3 flex-1"><%= product.summary %></p>
 
     <div class="mt-5 flex flex-wrap gap-1.5">
-      <% product[:tags].each do |tag| %>
+      <% product.tags.each do |tag| %>
         <span class="tag"><%= tag %></span>
       <% end %>
     </div>
@@ -31,12 +33,12 @@
       <div>
         <dt class="micro">Common sizes</dt>
         <dd class="mt-1.5 text-xs font-semibold text-ink-700 dark:text-ink-200">
-          <%= product[:sizes].first(3).join(" · ") %><%= " +#{product[:sizes].length - 3}" if product[:sizes].length > 3 %>
+          <%= product.sizes.first(3).join(" · ") %><%= " +#{product.sizes.length - 3}" if product.sizes.length > 3 %>
         </dd>
       </div>
       <div>
         <dt class="micro">Grade</dt>
-        <dd class="mt-1.5 text-xs font-semibold text-ink-700 dark:text-ink-200"><%= product[:specs].first[1] %></dd>
+        <dd class="mt-1.5 text-xs font-semibold text-ink-700 dark:text-ink-200"><%= product.grade %></dd>
       </div>
     </dl>
 
@@ -45,7 +47,7 @@
         View specification
         <%= icon "arrow-up-right" %>
       <% end %>
-      <%= link_to contact_path(product: product[:key]), class: "btn-primary btn-sm" do %>
+      <%= link_to contact_path(product: product.key), class: "btn-primary btn-sm" do %>
         Enquire
         <%= icon "arrow-right" %>
       <% end %>

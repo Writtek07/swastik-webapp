@@ -1,0 +1,9 @@
+<% content_for :title, "New gauge session · Admin" %>
+
+<%= link_to admin_guage_prices_path, class: "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-ink-500 hover:text-ink-900" do %>
+  <%= icon "arrow-left", class: "h-3.5 w-3.5" %> Gauge prices
+<% end %>
+<h1 class="admin-title mt-3">Open a gauge session</h1>
+<p class="mt-2 text-sm text-ink-500">Set the dates this year's gauge prices are valid for. You'll be recorded as the admin who opened it.</p>
+
+<%= render "form", guage_session: @guage_session, submit_label: "Open session" %>

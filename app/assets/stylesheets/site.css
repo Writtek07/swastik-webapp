@@ -8,7 +8,10 @@
 --------------------------------------------------------------------------- */
 @layer base {
   html {
-    scroll-behavior: smooth;
+    /* Lenis owns smooth scrolling. Leaving `smooth` here would fight it and
+       make anchor landings overshoot, so native smoothing is off by default
+       and only the reduced-motion block below opts back into it. */
+    scroll-behavior: auto;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -41,512 +44,1010 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Texture — a faint grain plus a blueprint grid. Both are decorative and sit
-   behind content so they never intercept pointer events.
+   Components
+   Everything below lives in the `components` layer. Unlayered CSS outranks
+   every Tailwind layer, which made view-level utilities silently lose to these
+   classes (`btn-primary hidden sm:inline-flex` stayed visible on phones,
+   `btn-outline text-white` kept its dark text). Inside the layer, utilities on
+   an element override the component defaults, as Tailwind intends.
 --------------------------------------------------------------------------- */
-.grain::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.35;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
-}
-
-.blueprint-grid {
-  background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--color-ink-900) 6%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--color-ink-900) 6%, transparent) 1px, transparent 1px);
-  background-size: 64px 64px;
-}
-
-.dark .blueprint-grid {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-}
-
-/* Diagonal hatch used on dark panels and image placeholders. */
-.hatch {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, 0.07) 0 1px,
-    transparent 1px 9px
-  );
-}
-
-/* ---------------------------------------------------------------------------
-   Layout helpers
---------------------------------------------------------------------------- */
-.shell {
-  @apply mx-auto w-full max-w-[84rem] px-5 sm:px-8 lg:px-12;
-}
-
-.section {
-  @apply relative py-20 sm:py-24 lg:py-32;
-}
-
-.rule {
-  @apply h-px w-full bg-ink-900/10 dark:bg-white/10;
-}
-
-/* ---------------------------------------------------------------------------
-   Typography
---------------------------------------------------------------------------- */
-.kicker {
-  @apply inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.28em] text-ember-600 dark:text-ember-400;
-}
-
-.kicker::before {
-  content: "";
-  @apply h-px w-8 bg-ember-500;
-}
-
-.kicker--plain::before { content: none; }
-
-.display {
-  @apply font-display text-[2.6rem] font-extrabold leading-[0.95] tracking-[-0.035em] sm:text-6xl lg:text-[4.5rem];
-}
-
-.heading {
-  @apply font-display text-[2rem] font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-[2.75rem] lg:text-[3.25rem];
-}
-
-.subheading {
-  @apply font-display text-xl font-bold tracking-[-0.02em] sm:text-2xl;
-}
-
-.lede {
-  @apply text-base leading-8 text-ink-600 sm:text-lg dark:text-ink-300;
-}
-
-.body-text {
-  @apply text-[0.95rem] leading-7 text-ink-600 dark:text-ink-300;
-}
-
-.micro {
-  @apply text-[10px] font-bold uppercase tracking-[0.22em] text-ink-400 dark:text-ink-500;
-}
-
-.accent-underline {
-  @apply relative inline-block;
-}
-
-.accent-underline::after {
-  content: "";
-  @apply absolute -bottom-1 left-0 h-[3px] w-full bg-ember-500;
-}
-
-/* ---------------------------------------------------------------------------
-   Buttons — squared-off, uppercase, with a sliding arrow.
-   The base is a shared selector list rather than an @apply of `.btn`, because
-   Tailwind v4 only lets @apply reference real utilities.
---------------------------------------------------------------------------- */
-.btn,
-.btn-primary,
-.btn-dark,
-.btn-outline,
-.btn-ghost {
-  @apply relative inline-flex items-center justify-center gap-2.5 rounded-[3px] px-6 py-3.5
-         text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300
-         disabled:cursor-not-allowed disabled:opacity-60;
-}
-
-.btn svg,
-.btn-primary svg,
-.btn-dark svg,
-.btn-outline svg,
-.btn-ghost svg {
-  @apply h-3.5 w-3.5 shrink-0 transition-transform duration-300;
-}
-
-.btn:hover svg,
-.btn-primary:hover svg,
-.btn-dark:hover svg,
-.btn-outline:hover svg,
-.btn-ghost:hover svg {
-  transform: translateX(3px);
-}
-
-.btn-primary {
-  @apply bg-ember-600 text-white shadow-[0_10px_30px_-12px] shadow-ember-600/60 hover:bg-ember-500;
-}
-
-.btn-dark {
-  @apply bg-ink-900 text-white hover:bg-ink-800 dark:bg-white dark:text-ink-950 dark:hover:bg-ink-100;
-}
-
-.btn-outline {
-  @apply border border-ink-900/20 text-ink-900 hover:border-ink-900 hover:bg-ink-900 hover:text-white
-         dark:border-white/25 dark:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-ink-950;
-}
-
-.btn-ghost {
-  @apply px-0 text-ink-900 hover:text-ember-600 dark:text-white dark:hover:text-ember-400;
-}
-
-.btn-sm { @apply px-4 py-2.5 text-[10px]; }
-
-/* Square icon button used in the navbar and cards. */
-.icon-btn {
-  @apply inline-flex h-10 w-10 items-center justify-center rounded-[3px] border border-ink-900/15
-         text-ink-700 transition-colors duration-200 hover:border-ink-900/40 hover:text-ink-950
-         dark:border-white/15 dark:text-ink-200 dark:hover:border-white/40 dark:hover:text-white;
-}
-
-/* ---------------------------------------------------------------------------
-   Navigation
---------------------------------------------------------------------------- */
-.nav-shell {
-  @apply sticky top-0 z-50 border-b border-ink-900/10 bg-sand-50/85 backdrop-blur-xl
-         transition-[background-color,box-shadow] duration-300 dark:border-white/10 dark:bg-ink-950/85;
-}
-
-.nav-shell[data-scrolled="true"] {
-  @apply shadow-[0_18px_40px_-32px_rgba(11,14,20,0.55)];
-}
-
-.nav-link {
-  @apply relative inline-flex items-center gap-1.5 py-2 text-[12px] font-semibold uppercase
-         tracking-[0.14em] text-ink-600 transition-colors duration-200 hover:text-ink-950
-         dark:text-ink-300 dark:hover:text-white;
-}
-
-.nav-link::after {
-  content: "";
-  @apply absolute -bottom-0.5 left-0 h-[2px] w-0 bg-ember-500 transition-[width] duration-300;
-}
-
-.nav-link:hover::after,
-.nav-link[aria-current="page"]::after { @apply w-full; }
-
-.nav-link[aria-current="page"] { @apply text-ink-950 dark:text-white; }
-
-/* Mega menu panel */
-.mega {
-  @apply pointer-events-none absolute left-0 right-0 top-full origin-top border-b border-ink-900/10
-         bg-sand-50 opacity-0 shadow-[0_40px_80px_-50px_rgba(11,14,20,0.6)]
-         transition-[opacity,transform] duration-200 dark:border-white/10 dark:bg-ink-950;
-  transform: translateY(-6px);
-  /* Invisible bridge so the pointer can travel from the trigger into the panel
-     without crossing a gap that would fire mouseleave. */
-  padding-top: 0.75rem;
-  margin-top: -0.75rem;
-}
-
-.mega[data-open="true"] {
-  @apply pointer-events-auto opacity-100;
-  transform: translateY(0);
-}
-
-.mega-item {
-  @apply flex items-start gap-3 rounded-[3px] border border-transparent p-3 transition-colors duration-200
-         hover:border-ink-900/10 hover:bg-sand-100 dark:hover:border-white/10 dark:hover:bg-white/[0.04];
-}
-
-.mega-item-title {
-  @apply text-sm font-bold tracking-[-0.01em] text-ink-900 dark:text-white;
-}
-
-.mega-item-desc {
-  @apply mt-1 text-xs leading-5 text-ink-500 dark:text-ink-400;
-}
-
-/* Mobile drawer */
-.drawer {
-  @apply fixed inset-y-0 right-0 z-[70] flex w-[min(22rem,88vw)] flex-col border-l border-ink-900/10
-         bg-sand-50 transition-transform duration-400 dark:border-white/10 dark:bg-ink-950;
-  transform: translateX(100%);
-  transition-timing-function: var(--ease-out-expo);
-}
-
-.drawer[data-open="true"] { transform: translateX(0); }
-
-.drawer-link {
-  @apply flex items-center justify-between border-b border-ink-900/10 py-4 text-lg font-bold
-         tracking-[-0.02em] text-ink-900 transition-colors hover:text-ember-600
-         dark:border-white/10 dark:text-white dark:hover:text-ember-400;
-}
-
-.drawer-sub {
-  @apply block py-2.5 text-sm font-medium text-ink-500 transition-colors hover:text-ember-600
-         dark:text-ink-400 dark:hover:text-ember-400;
-}
-
-.scrim {
-  @apply fixed inset-0 z-[65] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300;
-  pointer-events: none;
-}
-
-.scrim[data-open="true"] { @apply opacity-100; pointer-events: auto; }
-
-/* ---------------------------------------------------------------------------
-   Cards & panels
---------------------------------------------------------------------------- */
-.card {
-  @apply relative flex flex-col overflow-hidden rounded-[4px] border border-ink-900/10 bg-white
-         transition-[transform,border-color,box-shadow] duration-400
-         hover:-translate-y-1 hover:border-ink-900/25 hover:shadow-[0_30px_60px_-40px_rgba(11,14,20,0.5)]
-         dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25;
-}
-
-.card-accent::before {
-  content: "";
-  @apply absolute inset-x-0 top-0 h-[3px] w-0 bg-ember-500 transition-[width] duration-500;
-}
-
-.card-accent:hover::before { @apply w-full; }
-
-.panel {
-  @apply rounded-[4px] border border-ink-900/10 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-white/[0.03];
-}
-
-.panel-dark {
-  @apply rounded-[4px] border border-white/10 bg-ink-900 p-6 text-white sm:p-8;
-}
-
-.tag {
-  @apply inline-flex items-center rounded-[2px] border border-ink-900/12 bg-sand-100 px-2.5 py-1
-         text-[10px] font-bold uppercase tracking-[0.14em] text-ink-600
-         dark:border-white/12 dark:bg-white/[0.05] dark:text-ink-300;
-}
-
-.tag-ember {
-  @apply border-ember-500/30 bg-ember-500/10 text-ember-700 dark:text-ember-300;
-}
-
-/* Numbered index used on value / process cards. */
-.index-num {
-  @apply font-display text-[11px] font-extrabold tracking-[0.24em] text-ember-600 dark:text-ember-400;
-}
-
-/* ---------------------------------------------------------------------------
-   Stats
---------------------------------------------------------------------------- */
-.stat-value {
-  @apply font-display text-[2.5rem] font-extrabold leading-none tracking-[-0.05em] sm:text-[3.25rem];
-}
-
-.stat-label {
-  @apply mt-3 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-500 dark:text-ink-400;
-}
-
-/* ---------------------------------------------------------------------------
-   Product visuals — pure CSS/SVG "blueprint" plates, no external images.
---------------------------------------------------------------------------- */
-.plate {
-  @apply relative aspect-[4/3] w-full overflow-hidden rounded-[3px] border border-ink-900/10
-         bg-ink-950 dark:border-white/10;
-}
-
-.plate::after {
-  content: "";
-  @apply pointer-events-none absolute inset-0;
-  background:
-    radial-gradient(circle at 22% 12%, rgba(249, 87, 17, 0.22), transparent 42%),
-    linear-gradient(150deg, rgba(255, 255, 255, 0.07), transparent 60%);
-}
-
-.plate-grid {
-  @apply absolute inset-0 opacity-[0.16];
-  background-image:
-    linear-gradient(to right, #fff 1px, transparent 1px),
-    linear-gradient(to bottom, #fff 1px, transparent 1px);
-  background-size: 34px 34px;
-}
-
-.plate-label {
-  @apply absolute left-4 top-4 z-10 text-[9px] font-bold uppercase tracking-[0.24em] text-white/60;
-}
-
-.plate-code {
-  @apply absolute right-4 top-4 z-10 font-display text-[9px] font-bold uppercase tracking-[0.24em] text-ember-400;
-}
-
-.plate-art {
-  @apply absolute inset-0 z-[5] grid place-items-center p-8;
-}
-
-.plate-art svg {
-  @apply h-full w-full max-h-[70%];
-  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
-}
-
-/* ---------------------------------------------------------------------------
-   Catalogue filters
---------------------------------------------------------------------------- */
-.filter-chip {
-  @apply shrink-0 whitespace-nowrap rounded-[3px] border border-ink-900/15 bg-sand-50 px-4 py-2.5
-         text-[11px] font-bold uppercase tracking-[0.14em] text-ink-600 transition-all duration-200
-         hover:border-ink-900/40 hover:text-ink-950 dark:border-white/15 dark:bg-ink-950
-         dark:text-ink-300 dark:hover:border-white/40 dark:hover:text-white;
-}
-
-.filter-chip.is-active {
-  @apply border-ember-600 bg-ember-600 text-white hover:border-ember-600 hover:text-white;
-}
-
-/* Cards re-enter with a short lift whenever the filter changes. */
-.card.is-entering {
-  opacity: 0.25;
-  transform: translateY(12px);
-}
-
-/* ---------------------------------------------------------------------------
-   Marquee
---------------------------------------------------------------------------- */
-.marquee {
-  @apply flex w-max items-center gap-12;
-  animation: marquee 34s linear infinite;
-}
-
-.marquee-wrap:hover .marquee { animation-play-state: paused; }
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-/* ---------------------------------------------------------------------------
-   Reveal on scroll
---------------------------------------------------------------------------- */
-.reveal {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
-  transition-delay: var(--delay, 0ms);
-}
-
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* ---------------------------------------------------------------------------
-   Accordion (FAQ + mobile nav groups)
---------------------------------------------------------------------------- */
-.accordion-panel {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.4s var(--ease-out-expo);
-}
-
-.accordion-panel[data-open="true"] { grid-template-rows: 1fr; }
-
-.accordion-panel > div { overflow: hidden; }
-
-.accordion-trigger svg { @apply transition-transform duration-300; }
-.accordion-trigger[aria-expanded="true"] svg { transform: rotate(45deg); }
-
-/* ---------------------------------------------------------------------------
-   Slider (applications / gallery)
---------------------------------------------------------------------------- */
-.slider-track {
-  @apply flex gap-5 overflow-x-auto pb-4;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-}
-
-.slider-track::-webkit-scrollbar { display: none; }
-
-.slider-slide {
-  @apply shrink-0;
-  scroll-snap-align: start;
-}
-
-/* ---------------------------------------------------------------------------
-   Forms
---------------------------------------------------------------------------- */
-.field { @apply block; }
-
-.field > span {
-  @apply mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-ink-500 dark:text-ink-400;
-}
-
-.field input,
-.field select,
-.field textarea {
-  @apply w-full rounded-[3px] border border-ink-900/15 bg-white px-4 py-3 text-sm text-ink-900
-         outline-none transition placeholder:text-ink-400 focus:border-ember-500
-         focus:ring-4 focus:ring-ember-500/12 dark:border-white/15 dark:bg-ink-950/60
-         dark:text-white dark:placeholder:text-ink-600;
-}
-
-.field-error {
-  @apply mt-1.5 text-xs font-semibold text-ember-700 dark:text-ember-400;
-}
-
-/* ---------------------------------------------------------------------------
-   Video
---------------------------------------------------------------------------- */
-.video-frame {
-  @apply relative overflow-hidden rounded-[4px] border border-white/10 bg-ink-950;
-}
-
-.video-frame video,
-.video-frame img {
-  @apply h-full w-full object-cover;
-}
-
-/* Fallback shown until a real MP4 is dropped into app/assets/videos. */
-.video-fallback {
-  @apply absolute inset-0;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(249, 87, 17, 0.35), transparent 45%),
-    radial-gradient(circle at 75% 70%, rgba(255, 169, 113, 0.18), transparent 50%),
-    linear-gradient(160deg, #0b0e14, #232a35 60%, #141922);
-}
-
-.video-fallback::after {
-  content: "";
-  @apply absolute inset-0 opacity-60;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, 0.07) 0 1px,
-    transparent 1px 9px
-  );
-}
-
-.play-btn {
-  @apply inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/30
-         bg-white/10 text-white backdrop-blur-md transition-all duration-300
-         hover:scale-105 hover:border-white hover:bg-white hover:text-ink-950;
-}
-
-/* ---------------------------------------------------------------------------
-   Misc
---------------------------------------------------------------------------- */
-.dot {
-  @apply h-1.5 w-1.5 rounded-full bg-ember-500;
-}
-
-.link-arrow {
-  @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em]
-         text-ink-900 transition-colors hover:text-ember-600 dark:text-white dark:hover:text-ember-400;
-}
-
-.link-arrow svg { @apply h-3.5 w-3.5 transition-transform duration-300; }
-.link-arrow:hover svg { transform: translate(3px, -3px); }
-
-.breadcrumb {
-  @apply flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-400;
-}
-
-.breadcrumb a { @apply transition-colors hover:text-ember-600 dark:hover:text-ember-400; }
-
-/* ---------------------------------------------------------------------------
-   Reduced motion
---------------------------------------------------------------------------- */
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-
-  .reveal { opacity: 1; transform: none; transition: none; }
-
-  .marquee { animation: none; }
-
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    transition-duration: 0.001ms !important;
+@layer components {
+
+  /* ---------------------------------------------------------------------------
+     Texture — a faint grain plus a blueprint grid. Both are decorative and sit
+     behind content so they never intercept pointer events.
+  --------------------------------------------------------------------------- */
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+  }
+
+  /* The grid is pointer-reactive: `--mx` / `--my` are unitless 0–1 values written
+     by the pointer controller, and CSS turns them into a travelling ember
+     highlight plus a small parallax offset on the rules themselves. Keeping the
+     maths in CSS means the controller only ever writes two numbers per frame. */
+  .blueprint-grid {
+    --mx: 0.5;
+    --my: 0.5;
+    background-image:
+      radial-gradient(
+        460px circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+        color-mix(in oklab, var(--color-ember-500) 20%, transparent),
+        transparent 68%
+      ),
+      linear-gradient(to right, color-mix(in oklab, var(--color-ink-900) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--color-ink-900) 6%, transparent) 1px, transparent 1px);
+    background-size: 100% 100%, 64px 64px, 64px 64px;
+    background-position:
+      0 0,
+      calc(var(--mx) * 30px) calc(var(--my) * 30px),
+      calc(var(--mx) * 30px) calc(var(--my) * 30px);
+  }
+
+  .dark .blueprint-grid {
+    background-image:
+      radial-gradient(
+        460px circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+        rgba(249, 87, 17, 0.26),
+        transparent 68%
+      ),
+      linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  }
+
+  /* Diagonal hatch used on dark panels and image placeholders. */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.07) 0 1px,
+      transparent 1px 9px
+    );
+  }
+
+  /* ---------------------------------------------------------------------------
+     Layout helpers
+  --------------------------------------------------------------------------- */
+  .shell {
+    @apply mx-auto w-full max-w-[84rem] px-5 sm:px-8 lg:px-12;
+  }
+
+  .section {
+    @apply relative py-20 sm:py-24 lg:py-32;
+  }
+
+  .rule {
+    @apply h-px w-full bg-ink-900/10 dark:bg-white/10;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Typography
+  --------------------------------------------------------------------------- */
+  .kicker {
+    @apply inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.28em] text-ember-600 dark:text-ember-400;
+  }
+
+  .kicker::before {
+    content: "";
+    @apply h-px w-8 bg-ember-500;
+  }
+
+  .kicker--plain::before { content: none; }
+
+  .display {
+    @apply font-display text-[2.6rem] font-extrabold leading-[0.95] tracking-[-0.035em] sm:text-6xl lg:text-[4.5rem];
+  }
+
+  .heading {
+    @apply font-display text-[2rem] font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-[2.75rem] lg:text-[3.25rem];
+  }
+
+  .subheading {
+    @apply font-display text-xl font-bold tracking-[-0.02em] sm:text-2xl;
+  }
+
+  .lede {
+    @apply text-base leading-8 text-ink-600 sm:text-lg dark:text-ink-300;
+  }
+
+  .body-text {
+    @apply text-[0.95rem] leading-7 text-ink-600 dark:text-ink-300;
+  }
+
+  .micro {
+    @apply text-[10px] font-bold uppercase tracking-[0.22em] text-ink-400 dark:text-ink-500;
+  }
+
+  .accent-underline {
+    @apply relative inline-block;
+  }
+
+  .accent-underline::after {
+    content: "";
+    @apply absolute -bottom-1 left-0 h-[3px] w-full bg-ember-500;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Buttons — squared-off, uppercase, with a sliding arrow.
+     The base is a shared selector list rather than an @apply of `.btn`, because
+     Tailwind v4 only lets @apply reference real utilities.
+  --------------------------------------------------------------------------- */
+  .btn,
+  .btn-primary,
+  .btn-dark,
+  .btn-outline,
+  .btn-ghost {
+    @apply relative inline-flex items-center justify-center gap-2.5 rounded-[3px] px-6 py-3.5
+           text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  /* The magnetic lean is opt-in via the `.magnetic` class so buttons inside dense
+     layouts (tables, forms) stay still. Tailwind v4 cannot `@apply` a custom
+     class, so the shared declarations are listed as one selector group. */
+  .magnetic,
+  .btn-primary,
+  .btn-dark,
+  .btn-outline {
+    --mag-x: 0px;
+    --mag-y: 0px;
+    transform: translate3d(var(--mag-x), var(--mag-y), 0);
+    transition: transform 0.35s var(--ease-out-expo);
+  }
+
+  .magnetic.is-magnetised,
+  .btn-primary.is-magnetised,
+  .btn-dark.is-magnetised,
+  .btn-outline.is-magnetised {
+    transition: transform 0.1s linear;
+  }
+
+  .btn svg,
+  .btn-primary svg,
+  .btn-dark svg,
+  .btn-outline svg,
+  .btn-ghost svg {
+    @apply h-3.5 w-3.5 shrink-0 transition-transform duration-300;
+  }
+
+  .btn:hover svg,
+  .btn-primary:hover svg,
+  .btn-dark:hover svg,
+  .btn-outline:hover svg,
+  .btn-ghost:hover svg {
+    transform: translateX(3px);
+  }
+
+  .btn-primary {
+    @apply bg-ember-600 text-white shadow-[0_10px_30px_-12px] shadow-ember-600/60 hover:bg-ember-500;
+  }
+
+  .btn-dark {
+    @apply bg-ink-900 text-white hover:bg-ink-800 dark:bg-white dark:text-ink-950 dark:hover:bg-ink-100;
+  }
+
+  .btn-outline {
+    @apply border border-ink-900/20 text-ink-900 hover:border-ink-900 hover:bg-ink-900 hover:text-white
+           dark:border-white/25 dark:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-ink-950;
+  }
+
+  .btn-ghost {
+    @apply px-0 text-ink-900 hover:text-ember-600 dark:text-white dark:hover:text-ember-400;
+  }
+
+  .btn-sm { @apply px-4 py-2.5 text-[10px]; }
+
+  /* Square icon button used in the navbar and cards. */
+  .icon-btn {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-[3px] border border-ink-900/15
+           text-ink-700 transition-colors duration-200 hover:border-ink-900/40 hover:text-ink-950
+           dark:border-white/15 dark:text-ink-200 dark:hover:border-white/40 dark:hover:text-white;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Navigation
+  --------------------------------------------------------------------------- */
+  .nav-shell {
+    @apply sticky top-0 z-50 border-b border-ink-900/10 bg-sand-50/85 backdrop-blur-xl
+           transition-[background-color,box-shadow] duration-300 dark:border-white/10 dark:bg-ink-950/85;
+  }
+
+  .nav-shell[data-scrolled="true"] {
+    @apply shadow-[0_18px_40px_-32px_rgba(11,14,20,0.55)];
+  }
+
+  .nav-link {
+    @apply relative inline-flex items-center gap-1.5 py-2 text-[12px] font-semibold uppercase
+           tracking-[0.14em] text-ink-600 transition-colors duration-200 hover:text-ink-950
+           dark:text-ink-300 dark:hover:text-white;
+  }
+
+  .nav-link::after {
+    content: "";
+    @apply absolute -bottom-0.5 left-0 h-[2px] w-0 bg-ember-500 transition-[width] duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link[aria-current="page"]::after { @apply w-full; }
+
+  .nav-link[aria-current="page"] { @apply text-ink-950 dark:text-white; }
+
+  /* Mega menu panel */
+  .mega {
+    @apply pointer-events-none absolute left-0 right-0 top-full origin-top border-b border-ink-900/10
+           bg-sand-50 opacity-0 shadow-[0_40px_80px_-50px_rgba(11,14,20,0.6)]
+           transition-[opacity,transform] duration-200 dark:border-white/10 dark:bg-ink-950;
+    transform: translateY(-6px);
+    /* Invisible bridge so the pointer can travel from the trigger into the panel
+       without crossing a gap that would fire mouseleave. */
+    padding-top: 0.75rem;
+    margin-top: -0.75rem;
+  }
+
+  .mega[data-open="true"] {
+    @apply pointer-events-auto opacity-100;
+    transform: translateY(0);
+  }
+
+  .mega-item {
+    @apply flex items-start gap-3 rounded-[3px] border border-transparent p-3 transition-colors duration-200
+           hover:border-ink-900/10 hover:bg-sand-100 dark:hover:border-white/10 dark:hover:bg-white/[0.04];
+  }
+
+  .mega-item-title {
+    @apply text-sm font-bold tracking-[-0.01em] text-ink-900 dark:text-white;
+  }
+
+  .mega-item-desc {
+    @apply mt-1 text-xs leading-5 text-ink-500 dark:text-ink-400;
+  }
+
+  /* Mobile drawer */
+  .drawer {
+    @apply fixed inset-y-0 right-0 z-[70] flex w-[min(22rem,88vw)] flex-col border-l border-ink-900/10
+           bg-sand-50 transition-transform duration-400 dark:border-white/10 dark:bg-ink-950;
+    transform: translateX(100%);
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  .drawer[data-open="true"] { transform: translateX(0); }
+
+  .drawer-link {
+    @apply flex items-center justify-between border-b border-ink-900/10 py-4 text-lg font-bold
+           tracking-[-0.02em] text-ink-900 transition-colors hover:text-ember-600
+           dark:border-white/10 dark:text-white dark:hover:text-ember-400;
+  }
+
+  .drawer-sub {
+    @apply block py-2.5 text-sm font-medium text-ink-500 transition-colors hover:text-ember-600
+           dark:text-ink-400 dark:hover:text-ember-400;
+  }
+
+  .scrim {
+    @apply fixed inset-0 z-[65] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300;
+    pointer-events: none;
+  }
+
+  .scrim[data-open="true"] { @apply opacity-100; pointer-events: auto; }
+
+  /* ---------------------------------------------------------------------------
+     Cards & panels
+  --------------------------------------------------------------------------- */
+  .card {
+    @apply relative flex flex-col overflow-hidden rounded-[4px] border border-ink-900/10 bg-white
+           transition-[transform,border-color,box-shadow] duration-400
+           hover:-translate-y-1 hover:border-ink-900/25 hover:shadow-[0_30px_60px_-40px_rgba(11,14,20,0.5)]
+           dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25;
+  }
+
+  .card-accent::before {
+    content: "";
+    @apply absolute inset-x-0 top-0 h-[3px] w-0 bg-ember-500 transition-[width] duration-500;
+  }
+
+  .card-accent:hover::before { @apply w-full; }
+
+  .panel {
+    @apply rounded-[4px] border border-ink-900/10 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-white/[0.03];
+  }
+
+  .panel-dark {
+    @apply rounded-[4px] border border-white/10 bg-ink-900 p-6 text-white sm:p-8;
+  }
+
+  .tag {
+    @apply inline-flex items-center rounded-[2px] border border-ink-900/12 bg-sand-100 px-2.5 py-1
+           text-[10px] font-bold uppercase tracking-[0.14em] text-ink-600
+           dark:border-white/12 dark:bg-white/[0.05] dark:text-ink-300;
+  }
+
+  .tag-ember {
+    @apply border-ember-500/30 bg-ember-500/10 text-ember-700 dark:text-ember-300;
+  }
+
+  /* Numbered index used on value / process cards. */
+  .index-num {
+    @apply font-display text-[11px] font-extrabold tracking-[0.24em] text-ember-600 dark:text-ember-400;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Stats
+  --------------------------------------------------------------------------- */
+  .stat-value {
+    @apply font-display text-[2.5rem] font-extrabold leading-none tracking-[-0.05em] sm:text-[3.25rem];
+  }
+
+  .stat-label {
+    @apply mt-3 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-500 dark:text-ink-400;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Product visuals — pure CSS/SVG "blueprint" plates, no external images.
+  --------------------------------------------------------------------------- */
+  .plate {
+    @apply relative aspect-[4/3] w-full overflow-hidden rounded-[3px] border border-ink-900/10
+           bg-ink-950 dark:border-white/10;
+    /* Tilt is driven by `--rx` / `--ry` (degrees) and `--px` / `--py` (0–1
+       pointer position) written by the tilt controller. `--lift` lets the
+       surrounding card raise the plate slightly on hover. */
+    --rx: 0deg;
+    --ry: 0deg;
+    --px: 0.5;
+    --py: 0.5;
+    --lift: 0px;
+    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
+    transform-style: preserve-3d;
+    transition: transform 0.5s var(--ease-out-expo);
+    will-change: transform;
+  }
+
+  .plate.is-tilting {
+    transition: transform 0.12s linear;
+  }
+
+  .plate::after {
+    content: "";
+    @apply pointer-events-none absolute inset-0;
+    background:
+      radial-gradient(
+        340px circle at calc(var(--px) * 100%) calc(var(--py) * 100%),
+        rgba(255, 255, 255, 0.16),
+        transparent 62%
+      ),
+      radial-gradient(circle at 22% 12%, rgba(249, 87, 17, 0.22), transparent 42%),
+      linear-gradient(150deg, rgba(255, 255, 255, 0.07), transparent 60%);
+  }
+
+  .plate-grid {
+    @apply absolute inset-0 opacity-[0.16];
+    background-image:
+      linear-gradient(to right, #fff 1px, transparent 1px),
+      linear-gradient(to bottom, #fff 1px, transparent 1px);
+    background-size: 34px 34px;
+  }
+
+  .plate-label {
+    @apply absolute left-4 top-4 z-10 text-[9px] font-bold uppercase tracking-[0.24em] text-white/60;
+  }
+
+  .plate-code {
+    @apply absolute right-4 top-4 z-10 font-display text-[9px] font-bold uppercase tracking-[0.24em] text-ember-400;
+  }
+
+  .plate-art {
+    @apply absolute inset-0 z-[5] grid place-items-center p-8;
+  }
+
+  .plate-art svg {
+    @apply h-full w-full max-h-[70%];
+    filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
+  }
+
+  /* ---------------------------------------------------------------------------
+     Catalogue filters
+  --------------------------------------------------------------------------- */
+  .filter-chip {
+    @apply shrink-0 whitespace-nowrap rounded-[3px] border border-ink-900/15 bg-sand-50 px-4 py-2.5
+           text-[11px] font-bold uppercase tracking-[0.14em] text-ink-600 transition-all duration-200
+           hover:border-ink-900/40 hover:text-ink-950 dark:border-white/15 dark:bg-ink-950
+           dark:text-ink-300 dark:hover:border-white/40 dark:hover:text-white;
+  }
+
+  .filter-chip.is-active {
+    @apply border-ember-600 bg-ember-600 text-white hover:border-ember-600 hover:text-white;
+  }
+
+  /* Cards re-enter with a short lift whenever the filter changes. */
+  .card.is-entering {
+    opacity: 0.25;
+    transform: translateY(12px);
+  }
+
+  /* ---------------------------------------------------------------------------
+     Instrumentation — scroll progress rail and section readout.
+     Both are decorative: the rail is a 2px hairline and the readout restates the
+     section the user is already looking at, so neither is announced. They are
+     `aria-hidden` to keep the screen-reader stream free of per-frame noise.
+  --------------------------------------------------------------------------- */
+  .progress-rail {
+    @apply pointer-events-none fixed inset-x-0 top-0 z-[80] h-[2px] bg-transparent;
+  }
+
+  .progress-rail__bar {
+    @apply h-full origin-left bg-ember-500;
+    transform: scaleX(var(--progress, 0));
+    box-shadow: 0 0 12px rgba(249, 87, 17, 0.7);
+  }
+
+  .section-readout {
+    @apply pointer-events-none fixed bottom-6 right-6 z-[75] hidden items-center gap-3
+           rounded-[3px] border border-ink-900/10 bg-sand-50 px-3.5 py-2
+           lg:flex dark:border-white/10 dark:bg-ink-950;
+    /* The readout is transient: it fades in while the page is moving and fades
+       out once it settles, so it never sits on top of content the user is
+       reading. */
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-out-expo);
+  }
+
+  .section-readout.is-visible {
+    opacity: 1;
+  }
+
+  .section-readout__index {
+    @apply font-display text-[11px] font-extrabold tracking-[0.2em] text-ember-700 dark:text-ember-400;
+  }
+
+  .section-readout__label {
+    @apply max-w-[22rem] truncate text-[10px] font-bold uppercase tracking-[0.18em] text-ink-500 dark:text-ink-400;
+  }
+
+  .section-readout__track {
+    @apply relative h-8 w-px bg-ink-900/15 dark:bg-white/15;
+  }
+
+  .section-readout__thumb {
+    @apply absolute left-0 h-2 w-px bg-ember-500;
+    top: calc(var(--progress, 0) * 100%);
+  }
+
+  /* ---------------------------------------------------------------------------
+     Parallax layers — `--parallax` is a signed pixel offset written per frame.
+  --------------------------------------------------------------------------- */
+  .parallax {
+    transform: translate3d(0, var(--parallax, 0px), 0);
+    will-change: transform;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Marquee
+  --------------------------------------------------------------------------- */
+  .marquee {
+    @apply flex w-max items-center gap-12;
+    animation: marquee 34s linear infinite;
+  }
+
+  /* Constant pace only. Nothing scroll-driven may touch the strip: changing
+     animation-duration mid-run makes it jump, and skewing the band tilts it. */
+  .marquee-wrap:hover .marquee { animation-play-state: paused; }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---------------------------------------------------------------------------
+     Reveal on scroll
+     A directional mask rather than a plain fade, so blocks feel like they are
+     being drawn onto the page. `--reveal-x` / `--reveal-y` let a section choose
+     the direction it enters from; the default is a short rise.
+  --------------------------------------------------------------------------- */
+  .reveal {
+    --reveal-x: 0px;
+    --reveal-y: 22px;
+    opacity: 0;
+    transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
+    transition:
+      opacity 0.8s var(--ease-out-expo),
+      transform 0.8s var(--ease-out-expo),
+      clip-path 0.9s var(--ease-out-expo);
+    transition-delay: var(--delay, 0ms);
+    clip-path: inset(0 0 12% 0);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* ---------------------------------------------------------------------------
+     Stat gauges — a hairline that fills as the stat block enters the viewport.
+  --------------------------------------------------------------------------- */
+  .stat-gauge {
+    @apply relative mt-5 h-px w-full overflow-hidden bg-ink-900/12 dark:bg-white/12;
+  }
+
+  .stat-gauge__fill {
+    @apply absolute inset-y-0 left-0 bg-ember-500;
+    width: calc(var(--gauge, 0) * 100%);
+    transition: width 0.2s linear;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Accordion (FAQ + mobile nav groups)
+  --------------------------------------------------------------------------- */
+  .accordion-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s var(--ease-out-expo);
+  }
+
+  .accordion-panel[data-open="true"] { grid-template-rows: 1fr; }
+
+  .accordion-panel > div { overflow: hidden; }
+
+  .accordion-trigger svg { @apply transition-transform duration-300; }
+  .accordion-trigger[aria-expanded="true"] svg { transform: rotate(45deg); }
+
+  /* ---------------------------------------------------------------------------
+     Slider (applications / gallery)
+  --------------------------------------------------------------------------- */
+  .slider-track {
+    @apply flex gap-5 overflow-x-auto pb-4;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .slider-track::-webkit-scrollbar { display: none; }
+
+  .slider-slide {
+    @apply shrink-0;
+    scroll-snap-align: start;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Forms
+  --------------------------------------------------------------------------- */
+  .field { @apply block; }
+
+  .field > span {
+    @apply mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-ink-500 dark:text-ink-400;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    @apply w-full rounded-[3px] border border-ink-900/15 bg-white px-4 py-3 text-sm text-ink-900
+           outline-none transition placeholder:text-ink-400 focus:border-ember-500
+           focus:ring-4 focus:ring-ember-500/12 dark:border-white/15 dark:bg-ink-950/60
+           dark:text-white dark:placeholder:text-ink-600;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-xs font-semibold text-ember-700 dark:text-ember-400;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Video
+  --------------------------------------------------------------------------- */
+  .video-frame {
+    @apply relative overflow-hidden rounded-[4px] border border-white/10 bg-ink-950;
+  }
+
+  .video-frame video,
+  .video-frame img {
+    @apply h-full w-full object-cover;
+  }
+
+  /* Fallback shown until a real MP4 is dropped into app/assets/videos. */
+  .video-fallback {
+    @apply absolute inset-0;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(249, 87, 17, 0.35), transparent 45%),
+      radial-gradient(circle at 75% 70%, rgba(255, 169, 113, 0.18), transparent 50%),
+      linear-gradient(160deg, #0b0e14, #232a35 60%, #141922);
+  }
+
+  .video-fallback::after {
+    content: "";
+    @apply absolute inset-0 opacity-60;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.07) 0 1px,
+      transparent 1px 9px
+    );
+  }
+
+  .play-btn {
+    @apply inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/30
+           bg-white/10 text-white backdrop-blur-md transition-all duration-300
+           hover:scale-105 hover:border-white hover:bg-white hover:text-ink-950;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Misc
+  --------------------------------------------------------------------------- */
+  .dot {
+    @apply h-1.5 w-1.5 rounded-full bg-ember-500;
+  }
+
+  .link-arrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em]
+           text-ink-900 transition-colors hover:text-ember-600 dark:text-white dark:hover:text-ember-400;
+  }
+
+  .link-arrow svg { @apply h-3.5 w-3.5 transition-transform duration-300; }
+  .link-arrow:hover svg { transform: translate(3px, -3px); }
+
+  .breadcrumb {
+    @apply flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-400;
+  }
+
+  .breadcrumb a { @apply transition-colors hover:text-ember-600 dark:hover:text-ember-400; }
+
+  /* ---------------------------------------------------------------------------
+     Reduced motion
+  --------------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    /* Native smoothing is restored because Lenis is never instantiated. */
+    html { scroll-behavior: smooth; }
+
+    .reveal { opacity: 1; transform: none; clip-path: none; transition: none; }
+
+    .marquee { animation: none; transform: none; }
+
+    /* The immersive layer is inert: no tilt, no parallax, no magnetic lean. */
+    .plate,
+    .magnetic,
+    .parallax {
+      transform: none !important;
+      transition: none !important;
+    }
+
+    .plate::after {
+      background:
+        radial-gradient(circle at 22% 12%, rgba(249, 87, 17, 0.22), transparent 42%),
+        linear-gradient(150deg, rgba(255, 255, 255, 0.07), transparent 60%);
+    }
+
+    .blueprint-grid { background-position: 0 0, 0 0, 0 0; }
+
+    .stat-gauge__fill { transition: none; }
+
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+     Admin console
+     Shares the marketing palette but runs denser: smaller type, tabular figures
+     and flat panels, because admins scan and type rather than browse.
+  --------------------------------------------------------------------------- */
+  .admin-sidebar {
+    @apply flex shrink-0 flex-col bg-ink-950 text-ink-300 lg:sticky lg:top-0 lg:h-screen lg:w-64;
+  }
+
+  .admin-nav-link {
+    @apply flex items-center gap-3 rounded-[3px] px-3 py-2.5 text-[13px] font-semibold text-ink-400
+           transition-colors hover:bg-white/[0.05] hover:text-white;
+  }
+
+  .admin-nav-link[aria-current="page"] {
+    @apply bg-white/[0.07] text-white shadow-[inset_2px_0_0_var(--color-ember-500)];
+  }
+
+  .admin-avatar {
+    @apply inline-flex shrink-0 items-center justify-center rounded-full bg-ember-500/15 font-bold tracking-wide text-ember-700;
+  }
+
+  .admin-sidebar .admin-avatar { @apply bg-ember-500/20 text-ember-300; }
+
+  .admin-card {
+    @apply rounded-[4px] border border-ink-900/10 bg-white;
+  }
+
+  .admin-card__head {
+    @apply flex flex-wrap items-center justify-between gap-4 border-b border-ink-900/10 px-5 py-4 sm:px-6;
+  }
+
+  .admin-title {
+    @apply font-display text-2xl font-extrabold tracking-[-0.02em] text-ink-950 sm:text-3xl;
+  }
+
+  .admin-table {
+    @apply w-full border-collapse text-left text-sm;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .admin-table th {
+    @apply whitespace-nowrap border-b border-ink-900/10 bg-sand-50 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-ink-500;
+  }
+
+  .admin-table td {
+    @apply border-b border-ink-900/[0.06] px-4 py-3 align-middle text-ink-700;
+  }
+
+  .admin-table tbody tr:last-child td { @apply border-b-0; }
+  .admin-table tbody tr:hover td { @apply bg-sand-50/70; }
+
+  .admin-table .admin-table__group td {
+    @apply bg-sand-100 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-ink-500;
+  }
+
+  /* Inputs inside the price sheet: compact, right-aligned figures. */
+  .admin-input {
+    @apply w-full rounded-[3px] border border-ink-900/15 bg-white px-3 py-2 text-sm text-ink-900 outline-none
+           transition placeholder:text-ink-300 focus:border-ember-500 focus:ring-4 focus:ring-ember-500/12;
+  }
+
+  .admin-input--price {
+    @apply pl-7 text-right font-semibold;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .admin-delta {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-[2px] px-2 py-0.5 text-[11px] font-bold;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .admin-delta--up { @apply bg-emerald-500/10 text-emerald-700; }
+  .admin-delta--down { @apply bg-ember-500/10 text-ember-700; }
+  .admin-delta--flat { @apply bg-ink-900/[0.05] text-ink-500; }
+  .admin-delta--new { @apply bg-sky-500/10 text-sky-700; }
+
+  .admin-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em];
+  }
+
+  /* Status switch on the staff roster. `aria-checked` drives the on state, and
+     the form's `aria-busy` (set by Turbo while the request is in flight) dims it. */
+  .admin-switch {
+    @apply inline-flex cursor-pointer items-center gap-2.5 rounded-full py-0.5 pr-1 outline-none
+           focus-visible:ring-4 focus-visible:ring-ember-500/20;
+  }
+
+  .admin-switch__track {
+    @apply relative inline-flex h-5 w-9 shrink-0 items-center rounded-full bg-ink-900/15 transition-colors duration-200;
+  }
+
+  .admin-switch__thumb {
+    @apply absolute left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200;
+  }
+
+  .admin-switch__label {
+    @apply w-14 text-left text-[10px] font-bold uppercase tracking-[0.14em] text-ink-500;
+  }
+
+  .admin-switch[aria-checked="true"] .admin-switch__track { @apply bg-emerald-500; }
+  .admin-switch[aria-checked="true"] .admin-switch__thumb { @apply translate-x-4; }
+  .admin-switch[aria-checked="true"] .admin-switch__label { @apply text-emerald-700; }
+  .admin-switch:hover .admin-switch__track { @apply ring-4 ring-ink-900/[0.06]; }
+
+  form[aria-busy="true"] .admin-switch { @apply pointer-events-none opacity-50; }
+
+  .admin-segment {
+    @apply inline-flex rounded-[3px] border border-ink-900/15 bg-white p-0.5;
+  }
+
+  .admin-segment a {
+    @apply rounded-[2px] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-500 transition-colors hover:text-ink-900;
+  }
+
+  .admin-segment a[aria-current="true"] { @apply bg-ink-950 text-white; }
+
+  /* Pagy nav (pagy_nav output): `a` for links, `a.current` for the active page,
+     `a.gap` for the ellipsis and `a[aria-disabled]` for dead prev/next arrows. */
+  .pagy.nav {
+    @apply flex flex-wrap items-center gap-1;
+  }
+
+  .pagy.nav a {
+    @apply inline-flex h-8 min-w-8 items-center justify-center rounded-[3px] border border-ink-900/12 bg-white px-2.5
+           text-xs font-bold text-ink-600 transition-colors hover:border-ink-900/35 hover:text-ink-950;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pagy.nav a.current {
+    @apply border-ink-950 bg-ink-950 text-white;
+  }
+
+  .pagy.nav a.gap {
+    @apply border-transparent bg-transparent text-ink-400;
+  }
+
+  .pagy.nav a[aria-disabled="true"]:not(.current):not(.gap) {
+    @apply pointer-events-none opacity-40;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Home — featured product tiles. A full-bleed photo with the copy laid over a
+     bottom-weighted shade; the summary unfolds on hover (always open on touch).
+  --------------------------------------------------------------------------- */
+  .feature-tile {
+    @apply relative isolate flex aspect-[4/5] flex-col overflow-hidden rounded-[4px] bg-ink-950 text-white
+           md:aspect-[3/4] lg:aspect-[4/5];
+  }
+
+  .feature-tile__image {
+    @apply absolute inset-0 z-[1] h-full w-full object-cover;
+    transform: scale(1.02);
+    transition: transform 1.1s var(--ease-out-expo);
+  }
+
+  .feature-tile:hover .feature-tile__image,
+  .feature-tile:focus-visible .feature-tile__image {
+    transform: scale(1.09);
+  }
+
+  .feature-tile__shade {
+    @apply absolute inset-0 z-[2];
+    background:
+      linear-gradient(to top, rgba(11, 14, 20, 0.95) 0%, rgba(11, 14, 20, 0.55) 38%, rgba(11, 14, 20, 0.05) 65%, rgba(11, 14, 20, 0.45) 100%);
+  }
+
+  .feature-tile::after {
+    content: "";
+    @apply absolute inset-x-0 bottom-0 z-[3] h-[3px] origin-left scale-x-0 bg-ember-500;
+    transition: transform 0.7s var(--ease-out-expo);
+  }
+
+  .feature-tile:hover::after,
+  .feature-tile:focus-visible::after { transform: scaleX(1); }
+
+  /* Collapsible summary: the grid-rows trick animates to the content's height. */
+  .feature-tile__more {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.6s var(--ease-out-expo), opacity 0.4s ease;
+  }
+
+  .feature-tile__more > div { overflow: hidden; }
+
+  @media (hover: hover) {
+    .feature-tile__more { grid-template-rows: 0fr; opacity: 0; }
+    .feature-tile:hover .feature-tile__more,
+    .feature-tile:focus-visible .feature-tile__more { grid-template-rows: 1fr; opacity: 1; }
+  }
+
+  /* ---------------------------------------------------------------------------
+     Preloader — first-visit intro. Hidden unless <html> has `is-preloading`
+     (set in the <head>), or while it plays its exit.
+  --------------------------------------------------------------------------- */
+  html.is-preloading { overflow: hidden; }
+
+  .preloader {
+    @apply fixed inset-0 z-[200] hidden;
+  }
+
+  html.is-preloading .preloader,
+  .preloader.is-leaving {
+    display: block;
+  }
+
+  .preloader.is-leaving { pointer-events: none; }
+
+  .preloader__panel,
+  .preloader__curtain {
+    @apply absolute inset-0;
+    will-change: transform;
+  }
+
+  .preloader__panel {
+    @apply overflow-hidden bg-ink-950 text-white;
+  }
+
+  /* The ember curtain sits behind the panel and trails it on exit, leaving a
+     brief streak of colour between the intro and the page. */
+  .preloader__curtain--ember { @apply bg-ember-600; }
+
+  .preloader.is-leaving .preloader__panel {
+    transform: translateY(-100%);
+    transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1) 0.18s;
+  }
+
+  .preloader.is-leaving .preloader__curtain {
+    transform: translateY(-100%);
+    transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1) 0.3s;
+  }
+
+  .preloader__lines {
+    @apply absolute inset-0 h-full w-full;
+  }
+
+  .preloader__lines path {
+    stroke: rgba(255, 255, 255, 0.07);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: preloader-draw 1.6s var(--ease-out-expo) forwards;
+    animation-delay: calc(var(--i) * 90ms + 100ms);
+  }
+
+  .preloader__inner {
+    @apply relative flex h-full flex-col justify-between px-5 py-6 sm:px-10 sm:py-8 lg:px-14 lg:py-10;
+    transition: opacity 0.45s ease, transform 0.6s var(--ease-out-expo);
+  }
+
+  .preloader.is-leaving .preloader__inner {
+    opacity: 0;
+    transform: translateY(-3rem);
+  }
+
+  .preloader__meta {
+    @apply flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.28em] text-ink-400;
+    animation: preloader-fade 0.8s ease 0.2s both;
+  }
+
+  .preloader__center {
+    @apply flex flex-col items-center text-center;
+  }
+
+  .preloader__mark {
+    @apply h-20 w-auto;
+    animation: preloader-mark 1s var(--ease-out-expo) 0.15s both;
+  }
+
+  .preloader__word {
+    @apply mt-7 flex font-display text-[clamp(3rem,13vw,9.5rem)] font-black leading-[0.85] tracking-[-0.04em];
+  }
+
+  .preloader__mask {
+    @apply inline-block overflow-hidden pb-[0.06em];
+  }
+
+  .preloader__mask > span {
+    @apply inline-block;
+    transform: translateY(105%) rotate(6deg);
+    transform-origin: left bottom;
+    animation: preloader-rise 1s var(--ease-out-expo) forwards;
+    animation-delay: calc(var(--i) * 65ms + 350ms);
+  }
+
+  .preloader__tagline {
+    @apply mt-6 text-[11px] font-bold uppercase tracking-[0.32em] text-ink-400;
+    animation: preloader-fade 0.9s ease 1s both;
+  }
+
+  .preloader__foot {
+    @apply grid grid-cols-[auto_1fr] items-end gap-x-6 gap-y-3 sm:grid-cols-[auto_1fr_auto];
+    animation: preloader-fade 0.8s ease 0.35s both;
+  }
+
+  .preloader__count {
+    @apply font-display text-5xl font-black leading-none tracking-[-0.04em] text-white sm:text-7xl;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .preloader__count sup {
+    @apply ml-1 align-top text-base font-bold text-ember-500 sm:text-xl;
+  }
+
+  .preloader__track {
+    @apply mb-3 h-px w-full overflow-hidden bg-white/12;
+  }
+
+  .preloader__bar {
+    @apply block h-full w-full origin-left bg-ember-500;
+    transform: scaleX(0);
+  }
+
+  .preloader__status {
+    @apply col-span-2 text-[10px] font-bold uppercase tracking-[0.28em] text-ink-400 sm:col-span-1 sm:mb-2;
+  }
+
+  @keyframes preloader-draw { to { stroke-dashoffset: 0; } }
+  @keyframes preloader-rise { to { transform: translateY(0) rotate(0); } }
+  @keyframes preloader-fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes preloader-mark {
+    from { opacity: 0; transform: scale(0.4) rotate(-90deg); }
+    to { opacity: 1; transform: none; }
   }
 }

@@ -4,8 +4,30 @@
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+# Devise validates presence and uniqueness of email and the column carries a
+# unique index, so the fixtures need distinct addresses rather than the
+# generated empty defaults.
+# Roles default to staff and status to active, so `one` and `two` are ordinary
+# staff; `owner`, `super` and `inactive` cover the access rules.
+one:
+  email: admin-one@swastik.example
+  encrypted_password: <%= Devise::Encryptor.digest(Admin, "password123") %>
+
+two:
+  email: admin-two@swastik.example
+  encrypted_password: <%= Devise::Encryptor.digest(Admin, "password123") %>
+
+owner:
+  email: owner@swastik.example
+  encrypted_password: <%= Devise::Encryptor.digest(Admin, "password123") %>
+  role: owner
+
+super:
+  email: super@swastik.example
+  encrypted_password: <%= Devise::Encryptor.digest(Admin, "password123") %>
+  role: super_user
+
+inactive:
+  email: inactive@swastik.example
+  encrypted_password: <%= Devise::Encryptor.digest(Admin, "password123") %>
+  status: inactive

@@ -4,25 +4,73 @@
 # the data can later be swapped for ActiveRecord tables or a CMS without touching
 # the templates. Values are plain Ruby hashes with symbol keys.
 module Catalog
-  COMPANY = {
-    name: "Swastik Enterprise",
-    legal_name: "Swastik Enterprise Steel & Structural Solutions",
-    tagline: "Iron & steel, engineered for the long haul",
-    established: 1988,
-    summary: "A steel manufacturing and supply house serving infrastructure, industrial, " \
-             "fabrication and construction teams across Central India.",
-    phone: "+91 98261 00000",
-    phone_alt: "+91 771 222 5151",
-    email: "sales@swastikenterprise.example",
-    address: "Industrial Area, Raipur, Chhattisgarh 492001, India",
-    hours: "Mon – Sat, 9:30 am – 6:30 pm IST",
-    map_url: "https://maps.google.com/?q=Industrial+Area+Raipur+Chhattisgarh",
-    social: [
-      { label: "LinkedIn", url: "https://www.linkedin.com/" },
-      { label: "Instagram", url: "https://www.instagram.com/" },
-      { label: "Facebook", url: "https://www.facebook.com/" }
-    ]
+  # Reads a company setting from ENV, falling back to the default when the
+  # variable is unset or blank. Values are read once at boot, so restart the app
+  # after changing them. See docs/seo.md for the full list.
+  def self.env(name, default = nil)
+    ENV[name].presence || default
+  end
+
+  # Structured postal address, used for the visible address line and the
+  # LocalBusiness structured data.
+  ADDRESS = {
+    street: env("COMPANY_STREET", "Industrial Area"),
+    locality: env("COMPANY_CITY", "Raipur"),
+    region: env("COMPANY_REGION", "Chhattisgarh"),
+    region_code: env("COMPANY_REGION_CODE", "IN-CT"),
+    postal_code: env("COMPANY_POSTAL_CODE", "492001"),
+    country: env("COMPANY_COUNTRY", "India"),
+    country_code: env("COMPANY_COUNTRY_CODE", "IN"),
+    latitude: env("COMPANY_LATITUDE"),
+    longitude: env("COMPANY_LONGITUDE")
   }.freeze
+
+  COMPANY = {
+    name: env("COMPANY_NAME", "Swastik Enterprise"),
+    legal_name: env("COMPANY_LEGAL_NAME", "Swastik Enterprise Steel & Structural Solutions"),
+    tagline: env("COMPANY_TAGLINE", "Iron & steel, engineered for the long haul"),
+    established: env("COMPANY_ESTABLISHED", "1988").to_i,
+    summary: env("COMPANY_SUMMARY",
+                 "A steel manufacturing and supply house serving infrastructure, industrial, " \
+                 "fabrication and construction teams across Central India."),
+    phone: env("COMPANY_PHONE", "+91 98261 00000"),
+    phone_alt: env("COMPANY_PHONE_ALT", "+91 771 222 5151"),
+    email: env("COMPANY_EMAIL", "sales@swastikenterprise.example"),
+    address: env("COMPANY_ADDRESS",
+                 "#{ADDRESS[:street]}, #{ADDRESS[:locality]}, #{ADDRESS[:region]} #{ADDRESS[:postal_code]}, #{ADDRESS[:country]}"),
+    # Languages the sales desk answers in, comma-separated.
+    languages: env("COMPANY_LANGUAGES", "English,Hindi").split(",").map(&:strip),
+    hours: env("COMPANY_HOURS", "Mon – Sat, 9:30 am – 6:30 pm IST"),
+    # Machine-readable hours for structured data: comma-separated schema.org
+    # day names plus 24-hour open/close times.
+    open_days: env("COMPANY_OPEN_DAYS", "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday").split(",").map(&:strip),
+    opens: env("COMPANY_OPENS", "09:30"),
+    closes: env("COMPANY_CLOSES", "18:30"),
+    map_url: env("COMPANY_MAP_URL",
+                 "https://maps.google.com/?q=#{ERB::Util.url_encode("#{ADDRESS[:street]} #{ADDRESS[:locality]} #{ADDRESS[:region]}")}"),
+    # Areas served, comma-separated; feeds `areaServed` in structured data.
+    area_served: env("COMPANY_AREA_SERVED",
+                     "Chhattisgarh,Madhya Pradesh,Maharashtra,Odisha,Jharkhand,Uttar Pradesh").split(",").map(&:strip),
+    social: [
+      { label: "LinkedIn", url: env("COMPANY_LINKEDIN_URL", "https://www.linkedin.com/") },
+      { label: "Instagram", url: env("COMPANY_INSTAGRAM_URL", "https://www.instagram.com/") },
+      { label: "Facebook", url: env("COMPANY_FACEBOOK_URL", "https://www.facebook.com/") },
+      { label: "YouTube", url: env("COMPANY_YOUTUBE_URL") },
+      { label: "X", url: env("COMPANY_X_URL") }
+    ].select { |social| social[:url] }.map(&:freeze).freeze
+  }.freeze
+
+  # Social profiles that point at an actual page rather than a network's home
+  # page; only these are published as `sameAs` in structured data.
+  def self.social_profiles
+    COMPANY[:social].map { |social| social[:url] }.select { |url| profile_url?(url) }
+  end
+
+  def self.profile_url?(url)
+    URI(url).path.to_s.delete("/").present?
+  rescue URI::InvalidURIError
+    false
+  end
 
   # Headline numbers. `suffix` is appended verbatim, `value` drives the count-up.
   STATS = [
@@ -99,11 +147,18 @@ module Catalog
     { title: "Repeat-order accounts", body: "Stored specifications and pricing so reordering takes one phone call.", icon: "repeat" }
   ].freeze
 
+  # `image` is an Unsplash photo id (images.unsplash.com/photo-<id>) chosen to
+  # show the sector the card describes; `visual` is the SVG plate used as a
+  # fallback when no photo is set.
   APPLICATIONS = [
-    { title: "Industrial structures", body: "Plant sheds, equipment frames and heavy fabrication.", visual: "beam" },
-    { title: "Infrastructure & bridges", body: "Reinforcement and structural steel for public works.", visual: "rebar" },
-    { title: "Commercial construction", body: "Framing, columns and reinforcement for buildings.", visual: "column" },
-    { title: "Fabrication & engineering", body: "Flats, angles and hollow sections for workshops.", visual: "angle" }
+    { title: "Industrial structures", body: "Plant sheds, equipment frames and heavy fabrication.", visual: "beam",
+      image: "1496247749665-49cf5b1022e9", alt: "Steel-framed heavy industrial plant interior with overhead crane hooks" },
+    { title: "Infrastructure & bridges", body: "Reinforcement and structural steel for public works.", visual: "rebar",
+      image: "1645969024085-6ede0fcc5580", alt: "Steel truss road bridge against a clear blue sky" },
+    { title: "Commercial construction", body: "Framing, columns and reinforcement for buildings.", visual: "column",
+      image: "1527335988388-b40ee248d80c", alt: "High-rise steel building frame under construction beside tower cranes" },
+    { title: "Fabrication & engineering", body: "Flats, angles and hollow sections for workshops.", visual: "angle",
+      image: "1744735973756-b2efa8be24c8", alt: "Welder joining steel sections in a fabrication workshop, sparks flying" }
   ].freeze
 
   CLIENTS = [
@@ -154,199 +209,6 @@ module Catalog
     }
   ].freeze
 
-  # Product families. `visual` selects the SVG blueprint partial, `accent` the
-  # colour treatment, and `sizes` the specification table on the detail page.
-  PRODUCTS = [
-    {
-      slug: "parallel-flange-beams",
-      key: "structures",
-      category: "Concrete Structures",
-      title: "Parallel Flange Beams & Columns",
-      eyebrow: "Structural steel",
-      summary: "Heavy-duty beams and columns for industrial frames, building structures and infrastructure projects.",
-      description: "Rolled parallel flange sections with consistent web and flange thickness, used as primary " \
-                   "beams, columns and crane gantry girders. Supplied cut to length with mill test certification.",
-      visual: "beam",
-      accent: "ember",
-      tags: [ "Beams", "Columns", "Project supply" ],
-      sizes: [ "100 × 50", "125 × 70", "150 × 75", "175 × 85", "200 × 100", "250 × 125", "300 × 150" ],
-      specs: [
-        [ "Grade", "IS 2062 E250 / E350" ],
-        [ "Length", "6 m – 12 m, cut to order" ],
-        [ "Standard", "IS 12778 / IS 808" ],
-        [ "Finish", "Mill finish, primer on request" ]
-      ],
-      applications: [ "Industrial sheds", "Crane gantries", "Multi-storey frames", "Equipment supports" ]
-    },
-    {
-      slug: "channels",
-      key: "structures",
-      category: "Concrete Structures",
-      title: "Channels",
-      eyebrow: "Structural steel",
-      summary: "Reliable rolled channels for frames, supports, fabrication and industrial applications.",
-      description: "Hot rolled MS channels with parallel or tapered flanges, used for purlins, bracing, " \
-                   "machine bases and general fabrication work.",
-      visual: "channel",
-      accent: "steel",
-      tags: [ "Channels", "Fabrication", "Industrial" ],
-      sizes: [ "75 × 40", "100 × 50", "125 × 65", "150 × 75", "200 × 75", "250 × 80" ],
-      specs: [
-        [ "Grade", "IS 2062 E250" ],
-        [ "Length", "6 m – 12 m" ],
-        [ "Standard", "IS 808" ],
-        [ "Finish", "Mill finish" ]
-      ],
-      applications: [ "Purlins", "Bracing", "Machine bases", "Trailer chassis" ]
-    },
-    {
-      slug: "angles",
-      key: "structures",
-      category: "Concrete Structures",
-      title: "Angles",
-      eyebrow: "Structural steel",
-      summary: "Equal and unequal angle sections for bracing, frames, supports and general fabrication.",
-      description: "Rolled equal and unequal angles with clean edges and consistent thickness, suited to " \
-                   "bracing, transmission structures, shelving and general engineering.",
-      visual: "angle",
-      accent: "ember",
-      tags: [ "Equal angles", "Bracing", "Fabrication" ],
-      sizes: [ "20 × 20", "25 × 25", "30 × 30", "40 × 40", "50 × 50", "65 × 65", "75 × 75", "100 × 100" ],
-      specs: [
-        [ "Grade", "IS 2062 E250" ],
-        [ "Length", "6 m – 12 m" ],
-        [ "Standard", "IS 808" ],
-        [ "Finish", "Mill finish" ]
-      ],
-      applications: [ "Transmission towers", "Bracing", "Shelving", "Gates & grills" ]
-    },
-    {
-      slug: "ms-flat",
-      key: "structures",
-      category: "Concrete Structures",
-      title: "M.S. Flat",
-      eyebrow: "Flat steel",
-      summary: "Mild steel flats for fabrication, base plates, frames and engineering work.",
-      description: "Rolled mild steel flats in a wide width range, supplied in standard lengths or cut to " \
-                   "your cutting list for base plates, brackets and frames.",
-      visual: "flat",
-      accent: "steel",
-      tags: [ "MS flat", "Cut-to-length", "Fabrication" ],
-      sizes: [ "25 mm", "40 mm", "50 mm", "65 mm", "75 mm", "100 mm", "125 mm", "150 mm" ],
-      specs: [
-        [ "Grade", "IS 2062 E250" ],
-        [ "Thickness", "3 mm – 25 mm" ],
-        [ "Length", "6 m standard, cut to order" ],
-        [ "Finish", "Mill finish" ]
-      ],
-      applications: [ "Base plates", "Brackets", "Frames", "General fabrication" ]
-    },
-    {
-      slug: "ms-square-round",
-      key: "structures",
-      category: "Concrete Structures",
-      title: "M.S. Square & Round",
-      eyebrow: "Bar sections",
-      summary: "Round and square mild steel sections suitable for machining, fabrication and general engineering.",
-      description: "Bright and mill finish round and square bars for machining, shafts, pins, grills and " \
-                   "general engineering applications.",
-      visual: "round",
-      accent: "ember",
-      tags: [ "Round", "Square", "Engineering" ],
-      sizes: [ "10 mm", "12 mm", "16 mm", "20 mm", "25 mm", "32 mm", "40 mm", "50 mm" ],
-      specs: [
-        [ "Grade", "IS 2062 / EN8 on request" ],
-        [ "Length", "3 m – 6 m" ],
-        [ "Finish", "Mill or bright" ],
-        [ "Tolerance", "As per IS 1732" ]
-      ],
-      applications: [ "Machined parts", "Shafts & pins", "Grills", "Fencing" ]
-    },
-    {
-      slug: "tmt-rebars",
-      key: "tmt",
-      category: "TMT & Reinforcement",
-      title: "TMT Rebars",
-      eyebrow: "Reinforcement steel",
-      summary: "Deformed reinforcement bars designed for strength, bond and dependable performance in concrete structures.",
-      description: "Thermo-mechanically treated reinforcement bars with a ribbed surface for superior bond " \
-                   "strength, supplied in standard 12 m lengths and cut-to-length bundles.",
-      visual: "rebar",
-      accent: "ember",
-      tags: [ "Fe 500D", "Rebar", "Infrastructure" ],
-      sizes: [ "8 mm", "10 mm", "12 mm", "16 mm", "20 mm", "25 mm", "32 mm" ],
-      specs: [
-        [ "Grade", "Fe 500 / Fe 500D / Fe 550D" ],
-        [ "Length", "12 m standard" ],
-        [ "Standard", "IS 1786" ],
-        [ "Certification", "Mill test certificate with every lot" ]
-      ],
-      applications: [ "RCC frames", "Bridges & flyovers", "Foundations", "Industrial flooring" ]
-    },
-    {
-      slug: "tubes-and-pipes",
-      key: "pipes",
-      category: "Tubes & Pipes",
-      title: "Tubes & Pipes",
-      eyebrow: "ERW sections",
-      summary: "Round, square and rectangular tube sections for construction, fencing, machinery and fabrication.",
-      description: "ERW welded round, square and rectangular hollow sections with uniform wall thickness, " \
-                   "used across structural, mechanical and architectural work.",
-      visual: "pipe",
-      accent: "steel",
-      tags: [ "Round", "Square", "Rectangular" ],
-      sizes: [ "3/4 in", "1 in", "1 1/4 in", "1 1/2 in", "2 in", "2 1/2 in", "3 in" ],
-      specs: [
-        [ "Grade", "IS 4923 YST 210 / 240" ],
-        [ "Wall thickness", "1.6 mm – 6 mm" ],
-        [ "Length", "6 m standard" ],
-        [ "Finish", "Black, galvanised on request" ]
-      ],
-      applications: [ "Structural frames", "Fencing & gates", "Furniture", "Machinery guards" ]
-    },
-    {
-      slug: "sheets-and-plates",
-      key: "sheets",
-      category: "Steel Sheets & Plates",
-      title: "Sheets & Plates",
-      eyebrow: "Flat steel",
-      summary: "Steel sheets and plates for structural fabrication, industrial components and project requirements.",
-      description: "Hot rolled sheets and plates in a range of thicknesses, supplied sheared or flame cut to " \
-                   "your drawing for base plates, gussets and tank work.",
-      visual: "plate",
-      accent: "ember",
-      tags: [ "Sheets", "Plates", "Fabrication" ],
-      sizes: [ "2 mm+", "3 mm+", "5 mm+", "6 mm+", "8 mm+", "10 mm+", "12 mm+" ],
-      specs: [
-        [ "Grade", "IS 2062 E250 / E350" ],
-        [ "Thickness", "2 mm – 40 mm" ],
-        [ "Size", "1250 × 2500, 1500 × 6000" ],
-        [ "Cutting", "Sheared or flame cut to drawing" ]
-      ],
-      applications: [ "Base plates", "Gussets", "Tanks & hoppers", "Structural fabrication" ]
-    },
-    {
-      slug: "ms-pipes",
-      key: "ms-pipes",
-      category: "MS Pipes",
-      title: "MS Pipes",
-      eyebrow: "Mild steel",
-      summary: "Mild steel pipes for structural, utility, scaffolding, fencing and general engineering applications.",
-      description: "Mild steel pipes in nominal bore and outside diameter sizes for water lines, structural " \
-                   "columns, scaffolding and general utility work.",
-      visual: "pipe",
-      accent: "steel",
-      tags: [ "MS pipe", "Utility", "Structural" ],
-      sizes: [ "25 OD", "32 OD", "42 OD", "48 OD", "60 OD", "76 OD", "88 OD" ],
-      specs: [
-        [ "Grade", "IS 1239 Part 1" ],
-        [ "Class", "Light, medium, heavy" ],
-        [ "Length", "6 m standard" ],
-        [ "Finish", "Black, painted on request" ]
-      ],
-      applications: [ "Water & utility lines", "Scaffolding", "Structural columns", "Fencing" ]
-    }
-  ].freeze
 
   # Navigation is data-driven so the navbar, mega menu, mobile drawer and footer
   # all stay in sync from one place.
@@ -371,35 +233,36 @@ module Catalog
     { label: "Contact", path: :contact_path }
   ].freeze
 
+  # Product families live in the `products` table (see db/seeds.rb). These
+  # readers stay on Catalog so the navbar, footer and enquiry form keep a single
+  # entry point for site content.
   def self.product(slug)
-    PRODUCTS.find { |product| product[:slug] == slug }
+    Product.find_by(slug: slug)
   end
 
   # Looks up a family by its category key (the value the enquiry form submits).
   def self.product_by_key(key)
-    PRODUCTS.find { |product| product[:key] == key }
+    Product.find_by(key: key)
   end
 
   # Human-readable family name for a category key, or nil when unknown.
   def self.category_name(key)
-    product_by_key(key)&.fetch(:category)
+    product_by_key(key)&.category
   end
 
   def self.categories
-    PRODUCTS.map { |product| [ product[:key], product[:category] ] }.uniq
+    Product.categories
   end
 
   def self.products_for(key)
-    return PRODUCTS if key.blank? || key == "all"
-
-    PRODUCTS.select { |product| product[:key] == key }
+    Product.products_for(key)
   end
 
   def self.nav_children(entry)
     return entry[:children] unless entry[:children] == :product_children
 
-    PRODUCTS.map do |product|
-      { label: product[:title], path: [ :product_path, product[:slug] ], description: product[:summary] }
+    Product.ordered.map do |product|
+      { label: product.title, path: [ :product_path, product.slug ], description: product.summary }
     end
   end
 end

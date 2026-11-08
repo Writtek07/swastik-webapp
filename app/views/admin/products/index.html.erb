@@ -1,0 +1,39 @@
+<% content_for :title, "Products · Admin" %>
+
+<p class="micro">Catalogue</p>
+<h1 class="admin-title mt-2">Products</h1>
+<p class="mt-2 text-sm text-ink-500">Every product family that appears on the daily price sheet.</p>
+
+<section class="admin-card mt-8 overflow-x-auto">
+  <table class="admin-table min-w-[720px]">
+    <thead>
+      <tr>
+        <th scope="col">Product</th>
+        <th scope="col">Category</th>
+        <th scope="col" class="text-right">Latest price</th>
+        <th scope="col">Priced on</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <% latest = product.daily_prices.max_by(&:priced_on) %>
+        <tr>
+          <td class="font-semibold text-ink-900">
+            <%= product.title %>
+            <% if product.has_guage_price? %><span class="admin-pill ml-2 bg-sky-500/10 text-sky-700">Gauge</span><% end %>
+          </td>
+          <td class="text-ink-500"><%= product.category %></td>
+          <td class="text-right font-semibold text-ink-900"><%= latest ? inr(latest.price) : "—" %></td>
+          <td class="text-ink-500"><%= latest ? l(latest.priced_on, format: "%-d %b %Y") : "Never" %></td>
+          <td class="whitespace-nowrap text-right">
+            <% if admin_can?(:products, :edit) %>
+              <%= link_to "Edit", edit_admin_product_path(product), class: "mr-4 text-xs font-bold text-ink-500 hover:text-ink-900" %>
+            <% end %>
+            <%= link_to "History", admin_product_path(product), class: "link-arrow text-xs font-bold text-ember-600" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>

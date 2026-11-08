@@ -7,6 +7,9 @@ import { application } from "./application"
 import AccordionController from "./accordion_controller"
 application.register("accordion", AccordionController)
 
+import AutosubmitController from "./autosubmit_controller"
+application.register("autosubmit", AutosubmitController)
+
 import CatalogController from "./catalog_controller"
 application.register("catalog", CatalogController)
 
@@ -19,14 +22,29 @@ application.register("enquiry", EnquiryController)
 import HeroVideoController from "./hero_video_controller"
 application.register("hero-video", HeroVideoController)
 
+import PointerController from "./pointer_controller"
+application.register("pointer", PointerController)
+
+import PreloaderController from "./preloader_controller"
+application.register("preloader", PreloaderController)
+
+import QuoteController from "./quote_controller"
+application.register("quote", QuoteController)
+
 import RevealController from "./reveal_controller"
 application.register("reveal", RevealController)
+
+import ScrollInstrumentController from "./scroll_instrument_controller"
+application.register("scroll-instrument", ScrollInstrumentController)
 
 import SiteNavController from "./site_nav_controller"
 application.register("site-nav", SiteNavController)
 
 import SliderController from "./slider_controller"
 application.register("slider", SliderController)
+
+import SmoothScrollController from "./smooth_scroll_controller"
+application.register("smooth-scroll", SmoothScrollController)
 
 import VideoModalController from "./video_modal_controller"
 application.register("video-modal", VideoModalController)

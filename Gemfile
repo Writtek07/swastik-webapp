@@ -59,6 +59,10 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+
+  # Loads .env (see .env.example). Development only: tests must not depend on a
+  # developer's .env, and production gets its variables from the deploy.
+  gem "dotenv", "~> 3.2"
 end
 
 group :test do
@@ -68,3 +72,8 @@ group :test do
 end
 
 gem "devise", "~> 5.0"
+
+gem "pagy", "~> 9.4"
+
+# Quotation PDFs (QuotePdf)
+gem "prawn", "~> 2.5"

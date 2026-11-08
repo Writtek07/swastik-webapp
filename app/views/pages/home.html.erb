@@ -1,5 +1,5 @@
-<% content_for :title, page_title %>
-<% content_for :description, "Swastik Enterprise manufactures and supplies structural steel, TMT reinforcement, tubes, pipes, sheets and plates from Raipur, Chhattisgarh." %>
+<% content_for :title, page_title("Steel Manufacturer & Supplier in #{Catalog::ADDRESS[:locality]}") %>
+<% content_for :description, "#{Catalog::COMPANY[:name]} manufactures and supplies structural steel beams, channels, angles, TMT bars, MS pipes, sheets and plates from #{Catalog::ADDRESS[:locality]} since #{Catalog::COMPANY[:established]}. Get an instant quote." %>
 
 <div data-controller="reveal">
 
@@ -8,7 +8,7 @@
     class="relative isolate overflow-hidden bg-ink-950 text-white"
     data-controller="hero-video"
     data-hero-video-src-value=""
-  >
+   data-readout-label="Overview">
     <div class="absolute inset-0" aria-hidden="true">
       <%# Background video. Drop an MP4 into app/assets/videos and set
           data-hero-video-src-value above to switch the fallback off. The
@@ -33,12 +33,16 @@
         </div>
       </div>
 
+      <%# Pointer-reactive blueprint grid, drifting slower than the copy in
+          front of it so the hero reads as layered depth. %>
+      <div class="blueprint-grid parallax absolute inset-0 opacity-40" data-parallax-speed="0.05"></div>
+
       <div class="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/40"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-ink-950/60"></div>
     </div>
 
     <div class="shell relative flex min-h-[calc(100svh-4.5rem)] flex-col justify-center py-20 lg:py-28">
-      <div class="max-w-4xl">
+      <div class="max-w-4xl parallax" data-parallax-speed="-0.06">
         <p class="reveal inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-ink-200 backdrop-blur-sm" data-reveal-target="item">
           <span class="dot animate-pulse"></span>
           Manufacturing & supply since <%= Catalog::COMPANY[:established] %>
@@ -93,7 +97,7 @@
   </section>
 
   <%# ------------------------------------------------------------- Marquee %>
-  <section class="marquee-wrap overflow-hidden border-b border-ink-900/10 bg-sand-100 py-5 dark:border-white/10 dark:bg-white/[0.02]">
+  <section class="marquee-wrap overflow-hidden border-b border-ink-900/10 bg-sand-100 py-5 dark:border-white/10 dark:bg-white/[0.02]" data-readout-skip>
     <div class="marquee">
       <% 2.times do %>
         <% [ "Structural steel", "TMT reinforcement", "ERW tubes & pipes", "MS pipes", "Sheets & plates",
@@ -153,19 +157,57 @@
           <%= render "shared/section_heading",
                 kicker: "02 / Product families",
                 title: "Nine families. One supply desk.",
-                lede: "Every family is stocked in the sizes buyers actually specify, with cut-to-length and certification available as standard." %>
+                lede: "Three of the families most projects start with. Sizes, grades and specifications for all nine are in the catalogue." %>
         </div>
-        <%= link_to products_path, class: "btn-outline reveal shrink-0", data: { reveal_target: "item" } do %>
+        <%= link_to products_path, class: "btn-dark reveal shrink-0", data: { reveal_target: "item" } do %>
           View full catalogue
           <%= icon "arrow-right" %>
         <% end %>
       </div>
 
-      <div class="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div class="mt-14 grid gap-5 md:grid-cols-3">
         <% @featured_products.each_with_index do |product, index| %>
-          <%= render "shared/product_card", product: product, index: index %>
+          <%= link_to product_path_for(product),
+                class: "feature-tile reveal group",
+                data: { reveal_target: "item", **analytics_item_data(product) },
+                style: "--delay:#{index * 90}ms" do %>
+            <% if product.image_url.present? %>
+              <%= image_tag product.image_url, alt: "", loading: "lazy", decoding: "async", class: "feature-tile__image" %>
+            <% else %>
+              <div class="plate-grid absolute inset-0"></div>
+              <div class="plate-art absolute inset-0 text-white"><%= render "shared/visuals/#{product.visual}" %></div>
+            <% end %>
+            <div class="feature-tile__shade" aria-hidden="true"></div>
+
+            <div class="relative z-[3] flex items-start justify-between p-6">
+              <span class="index-num text-ember-400"><%= format("%02d", index + 1) %></span>
+              <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/85 backdrop-blur-sm">
+                <%= product.category %>
+              </span>
+            </div>
+
+            <div class="relative z-[3] mt-auto p-6 sm:p-7">
+              <p class="micro text-ember-300"><%= product.eyebrow.presence || product.grade %></p>
+              <h3 class="mt-3 font-display text-2xl font-extrabold leading-[1.05] tracking-[-0.025em] text-white sm:text-[1.75rem]">
+                <%= product.title %>
+              </h3>
+              <div class="feature-tile__more">
+                <div>
+                  <p class="pt-3 text-sm leading-6 text-ink-200 line-clamp-3"><%= product.summary %></p>
+                </div>
+              </div>
+              <span class="mt-5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white">
+                View specification
+                <span class="grid h-8 w-8 place-items-center rounded-full border border-white/25 transition-all duration-300 group-hover:border-ember-500 group-hover:bg-ember-500">
+                  <%= icon "arrow-up-right", class: "h-3.5 w-3.5" %>
+                </span>
+              </span>
+            </div>
+          <% end %>
         <% end %>
       </div>
+
+      <%= render "shared/quote_form", quotable: @quotable %>
     </div>
   </section>
 
@@ -216,11 +258,8 @@
         <div class="grid gap-5 sm:grid-cols-2">
           <% @applications.each_with_index do |application, index| %>
             <article class="reveal group relative overflow-hidden rounded-[4px] border border-white/10 bg-white/[0.03] p-6 transition-colors duration-300 hover:border-ember-500/40 hover:bg-white/[0.06]" data-reveal-target="item" style="--delay:<%= index * 80 %>ms">
-              <div class="plate mb-6 !aspect-[16/10]">
-                <div class="plate-grid"></div>
-                <div class="plate-art text-white">
-                  <%= render "shared/visuals/#{application[:visual]}" %>
-                </div>
+              <div class="mb-6">
+                <%= render "shared/application_media", application: application %>
               </div>
               <h3 class="font-display text-lg font-bold tracking-[-0.02em]"><%= application[:title] %></h3>
               <p class="mt-2 text-sm leading-6 text-ink-400"><%= application[:body] %></p>
@@ -243,35 +282,12 @@
     </div>
   </section>
 
-  <%# -------------------------------------------------------------- Values %>
-  <section class="section border-y border-ink-900/10 bg-sand-100/70 dark:border-white/10 dark:bg-white/[0.02]">
-    <div class="shell">
-      <div class="reveal max-w-3xl" data-reveal-target="item">
-        <%= render "shared/section_heading",
-              kicker: "06 / What we stand for",
-              title: "Six commitments we do not negotiate on." %>
-      </div>
-
-      <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <% @values.each_with_index do |value, index| %>
-          <div class="reveal panel group transition-colors duration-300 hover:border-ember-500/40" data-reveal-target="item" style="--delay:<%= (index % 3) * 80 %>ms">
-            <span class="grid h-11 w-11 place-items-center rounded-[3px] bg-ink-950 text-white transition-colors duration-300 group-hover:bg-ember-600 dark:bg-white dark:text-ink-950 dark:group-hover:bg-ember-600 dark:group-hover:text-white">
-              <%= icon value[:icon], class: "h-5 w-5" %>
-            </span>
-            <h3 class="mt-5 font-display text-lg font-bold tracking-[-0.02em]"><%= value[:title] %></h3>
-            <p class="mt-3 text-sm leading-6 text-ink-500 dark:text-ink-400"><%= value[:body] %></p>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </section>
-
   <%# --------------------------------------------------------------- FAQ %>
   <section class="section">
     <div class="shell grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
       <div class="reveal" data-reveal-target="item">
         <%= render "shared/section_heading",
-              kicker: "07 / Questions",
+              kicker: "06 / Questions",
               title: "The things buyers ask first." %>
         <p class="body-text mt-6">
           Still unsure? Send the schedule and we will come back with the most economical way to supply it.
@@ -282,7 +298,7 @@
         <% end %>
       </div>
 
-      <div class="reveal divide-y divide-ink-900/10 border-y border-ink-900/10 dark:divide-white/10 dark:border-white/10" data-reveal-target="item" data-controller="accordion">
+      <div class="reveal divide-y divide-ink-900/10 border-y border-ink-900/10 dark:divide-white/10 dark:border-white/10" data-reveal-target="item" data-controller="accordion" data-analytics-faq>
         <% @faqs.each_with_index do |faq, index| %>
           <div>
             <button

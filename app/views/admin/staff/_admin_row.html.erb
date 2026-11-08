@@ -1,0 +1,30 @@
+<%#
+  One roster row. Expects `admin` to carry `prices_count` (see
+  StaffController#roster); redrawn in place when its status switch is used.
+%>
+<tr id="<%= dom_id(admin) %>">
+  <td>
+    <div class="flex items-center gap-3">
+      <%= admin_avatar admin %>
+      <div class="min-w-0">
+        <p class="font-semibold text-ink-900">
+          <%= admin.display_name %>
+          <% if admin == current_admin %><span class="ml-1 text-[11px] font-medium text-ink-400">(you)</span><% end %>
+        </p>
+        <p class="text-xs text-ink-500"><%= admin.email %></p>
+      </div>
+    </div>
+  </td>
+  <td><%= admin_role_pill admin %></td>
+  <td>
+    <% if current_admin.can_change_status_of?(admin) %>
+      <%= admin_status_switch admin, filter: @status %>
+    <% else %>
+      <%= admin_status_pill admin %>
+    <% end %>
+  </td>
+  <td class="text-right font-semibold text-ink-900"><%= admin.prices_count %></td>
+  <td class="text-right"><%= admin.sign_in_count %></td>
+  <td class="text-ink-500"><%= admin.current_sign_in_at ? l(admin.current_sign_in_at, format: "%-d %b %Y, %H:%M") : "Never" %></td>
+  <td class="text-ink-500"><%= l admin.created_at, format: "%-d %b %Y" %></td>
+</tr>

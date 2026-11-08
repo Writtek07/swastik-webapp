@@ -22,6 +22,9 @@ module SwastikWebapp
     # in config/environments, which are processed later.
     #
     # config.time_zone = "Central Time (US & Canada)"
+    # Prices are entered per calendar day in India, so "today" must roll over at
+    # IST midnight rather than UTC midnight.
+    config.time_zone = "Kolkata"
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

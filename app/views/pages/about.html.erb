@@ -1,5 +1,6 @@
-<% content_for :title, page_title("Who we are") %>
-<% content_for :description, "Swastik Enterprise has manufactured and supplied iron and steel from Raipur since 1988. Our history, values and leadership." %>
+<% content_for :title, page_title("About Us — Steel Supplier Since #{Catalog::COMPANY[:established]}") %>
+<% content_for :description, "#{Catalog::COMPANY[:name]} has manufactured and supplied iron and steel from #{Catalog::ADDRESS[:locality]}, #{Catalog::ADDRESS[:region]} since #{Catalog::COMPANY[:established]}. Our history, milestones, values and commitment to quality." %>
+<% page_type "AboutPage" %>
 
 <div data-controller="reveal">
   <%= render "shared/page_hero",

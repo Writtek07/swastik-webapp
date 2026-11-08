@@ -1,0 +1,227 @@
+<% content_for :title, "Gauge prices · Admin" %>
+<% can_manage_sessions = admin_can?(:guage_sessions, :new) %>
+<% editable = @guage_session&.in_progress? %>
+<% total_sizes = @products.sum { |product| product.sizes.size } %>
+<% priced_sizes = @products.sum { |product| product.sizes.count { |size| @prices[[ product.id, size ]] } } %>
+
+<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+  <div>
+    <p class="micro">Price desk</p>
+    <h1 class="admin-title mt-2">Gauge prices</h1>
+    <p class="mt-2 text-sm text-ink-500">
+      <% if @guage_session %>
+        <span class="font-semibold text-ink-800"><%= @guage_session.label %> session</span> · <%= @guage_session.date_range %>
+      <% else %>
+        One rate per product size, fixed for the whole session.
+      <% end %>
+    </p>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-2">
+    <% if @guage_sessions.any? %>
+      <%= form_with url: admin_guage_prices_path, method: :get, data: { controller: "autosubmit" } do |f| %>
+        <%= select_tag :session_id,
+              options_for_select(@guage_sessions.map { |s| [ "#{s.label} · #{s.date_range}", s.id ] }, @guage_session&.id),
+              include_blank: @guage_session ? nil : "Choose a session",
+              class: "admin-input w-auto", aria: { label: "Session" }, data: { action: "change->autosubmit#submit" } %>
+        <noscript><%= f.submit "View", class: "btn-outline btn-sm" %></noscript>
+      <% end %>
+    <% end %>
+    <% if can_manage_sessions %>
+      <%= link_to new_admin_guage_session_path, class: "btn-dark btn-sm" do %>
+        New session <%= icon "plus" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<% if @guage_session.nil? %>
+  <%# ---------------------------------------------------------- No session %>
+  <section class="admin-card mt-8 px-6 py-14 text-center">
+    <%= icon "calendar", class: "mx-auto h-8 w-8 text-ink-300" %>
+    <p class="mt-3 text-sm font-semibold text-ink-700">No gauge session is in progress</p>
+    <p class="mx-auto mt-1 max-w-md text-xs text-ink-500">
+      Gauge prices are entered against a session — the dates they're valid for.
+      <%= can_manage_sessions ? "Open one to start the sheet." : "An owner or super user needs to open one before prices can be entered." %>
+      <%= "Earlier sessions are listed below." if @guage_sessions.any? %>
+    </p>
+    <% if can_manage_sessions %>
+      <%= link_to new_admin_guage_session_path, class: "btn-primary mt-6" do %>
+        Open a session <%= icon "arrow-right" %>
+      <% end %>
+    <% end %>
+  </section>
+<% else %>
+  <%# ------------------------------------------------------ Session banner %>
+  <section class="admin-card mt-8 grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
+    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+      <%= guage_session_pill @guage_session %>
+      <div class="flex items-center gap-2.5">
+        <%= admin_avatar @guage_session.created_by %>
+        <div class="leading-tight">
+          <p class="text-[13px] font-semibold text-ink-800">Opened by <%= @guage_session.created_by.display_name %></p>
+          <p class="text-[11px] text-ink-400"><%= l @guage_session.created_at, format: "%-d %b %Y, %H:%M" %></p>
+        </div>
+      </div>
+      <% if can_manage_sessions %>
+        <%= link_to "Edit dates", edit_admin_guage_session_path(@guage_session), class: "text-xs font-bold text-ink-500 hover:text-ink-900" %>
+      <% end %>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="h-1.5 w-28 overflow-hidden rounded-full bg-ink-900/10" aria-hidden="true">
+        <div class="h-full bg-ember-500" style="width: <%= total_sizes.positive? ? (priced_sizes * 100 / total_sizes) : 0 %>%"></div>
+      </div>
+      <span class="text-xs font-bold text-ink-700"><%= priced_sizes %> / <%= total_sizes %> sizes priced</span>
+    </div>
+  </section>
+
+  <% unless editable %>
+    <p class="mt-4 flex items-center gap-2 text-xs font-semibold text-ink-500">
+      <%= icon "clock", class: "h-3.5 w-3.5" %>
+      <%= @guage_session.ended? ? "This session has ended, so its prices are read-only." : "This session hasn't started yet. Prices can be entered from #{l @guage_session.starts_on, format: '%-d %b %Y'}." %>
+    </p>
+  <% end %>
+
+  <%# --------------------------------------------------------------- Sheet %>
+  <% if @products.empty? %>
+    <section class="admin-card mt-6 px-6 py-12 text-center">
+      <p class="text-sm font-semibold text-ink-700">No products take gauge prices yet</p>
+      <p class="mt-1 text-xs text-ink-500">A super user can turn on <span class="font-semibold">Has gauge price</span> from a product's edit page.</p>
+    </section>
+  <% else %>
+    <%= form_with url: admin_guage_prices_path, method: :post, class: "mt-6 space-y-6" do |f| %>
+      <% row = 0 %>
+      <% @products.each do |product| %>
+        <% product_priced = product.sizes.count { |size| @prices[[ product.id, size ]] } %>
+        <section class="admin-card" aria-labelledby="<%= dom_id(product, :guage) %>">
+          <div class="admin-card__head">
+            <div>
+              <h2 id="<%= dom_id(product, :guage) %>" class="font-display text-lg font-extrabold tracking-tight text-ink-950"><%= product.title %></h2>
+              <p class="mt-0.5 text-xs text-ink-500"><%= product.category %><%= " · #{product.grade}" if product.grade %></p>
+            </div>
+            <span class="text-xs font-bold text-ink-700"><%= product_priced %> / <%= product.sizes.size %> priced</span>
+          </div>
+
+          <% if product.sizes.empty? %>
+            <p class="px-6 py-8 text-center text-xs text-ink-500">This product has no sizes listed. A super user can add them from its edit page.</p>
+          <% else %>
+            <div class="overflow-x-auto">
+              <table class="admin-table min-w-[760px]">
+                <thead>
+                  <tr>
+                    <th scope="col" class="w-40">Size</th>
+                    <th scope="col" class="w-48">Rate</th>
+                    <th scope="col">Entered by</th>
+                    <th scope="col">Last updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% product.sizes.each do |size| %>
+                    <% entry = @prices[[ product.id, size ]] %>
+                    <tr>
+                      <td class="font-mono text-[13px] font-semibold text-ink-900"><%= size %></td>
+                      <td>
+                        <% if editable %>
+                          <%= hidden_field_tag "entries[#{row}][product_id]", product.id, id: nil %>
+                          <%= hidden_field_tag "entries[#{row}][size]", size, id: nil %>
+                          <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-semibold text-ink-400">₹</span>
+                            <%= number_field_tag "entries[#{row}][price]", entry && number_with_precision(entry.price, precision: 2, strip_insignificant_zeros: true), min: 0, step: "0.01", inputmode: "decimal",
+                                  class: "admin-input admin-input--price", aria: { label: "#{product.title} #{size} gauge price" } %>
+                          </div>
+                          <% row += 1 %>
+                        <% else %>
+                          <span class="font-semibold text-ink-900"><%= entry ? inr(entry.price) : "—" %></span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <% if entry %>
+                          <div class="flex items-center gap-2.5">
+                            <%= admin_avatar entry.entered_by, size: "h-7 w-7 text-[9px]" %>
+                            <div class="leading-tight">
+                              <p class="text-[13px] font-semibold text-ink-800"><%= entry.entered_by.display_name %></p>
+                              <p class="text-[11px] text-ink-400"><%= l entry.created_at, format: "%-d %b %Y, %H:%M" %></p>
+                            </div>
+                          </div>
+                        <% else %>
+                          <span class="admin-pill bg-ink-900/[0.05] text-ink-400">Not priced</span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <% if entry&.edited? %>
+                          <p class="text-[13px] font-semibold text-ink-800"><%= entry.updated_by.display_name %></p>
+                          <p class="text-[11px] text-ink-400"><%= l entry.updated_at, format: "%-d %b %Y, %H:%M" %></p>
+                        <% else %>
+                          <span class="text-xs text-ink-400">—</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </section>
+      <% end %>
+
+      <% if editable %>
+        <div class="admin-card flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <p class="flex items-center gap-2 text-xs text-ink-500">
+            <%= admin_avatar current_admin, size: "h-6 w-6 text-[9px]" %>
+            Each size takes one rate for the session; saved rates can be updated, not added again.
+          </p>
+          <%= f.button type: "submit", class: "btn-primary" do %>
+            Save gauge prices <%= icon "check" %>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# ------------------------------------------------------------- Sessions %>
+<% if @guage_sessions.any? %>
+  <section class="admin-card mt-10" aria-labelledby="sessions-heading">
+    <div class="admin-card__head">
+      <h2 id="sessions-heading" class="font-display text-lg font-extrabold tracking-tight text-ink-950">Sessions</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="admin-table min-w-[760px]">
+        <thead>
+          <tr>
+            <th scope="col">Session</th>
+            <th scope="col">Dates</th>
+            <th scope="col">Status</th>
+            <th scope="col">Opened by</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @guage_sessions.each do |guage_session| %>
+            <tr>
+              <td class="font-semibold text-ink-900"><%= guage_session.label %></td>
+              <td class="text-ink-500"><%= guage_session.date_range %></td>
+              <td><%= guage_session_pill guage_session %></td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <%= admin_avatar guage_session.created_by, size: "h-6 w-6 text-[9px]" %>
+                  <span class="text-[13px] text-ink-700"><%= guage_session.created_by.display_name %></span>
+                </div>
+              </td>
+              <td class="whitespace-nowrap text-right">
+                <% if can_manage_sessions %>
+                  <%= link_to "Edit", edit_admin_guage_session_path(guage_session), class: "mr-4 text-xs font-bold text-ink-500 hover:text-ink-900" %>
+                <% end %>
+                <% if guage_session == @guage_session %>
+                  <span class="text-xs font-bold text-ink-400">Viewing</span>
+                <% else %>
+                  <%= link_to "View", admin_guage_prices_path(session_id: guage_session.id), class: "link-arrow text-xs font-bold text-ember-600" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% end %>

@@ -1,7 +1,9 @@
 <%# Flash messages rendered as a dismissible strip under the navbar. %>
-<% if flash.any? %>
+<%# The analytics queue rides in the flash too, but it isn't a message. %>
+<% messages = flash.to_hash.except(AnalyticsEvents::FLASH_KEY.to_s) %>
+<% if messages.any? %>
   <div class="shell pt-6">
-    <% flash.each do |type, message| %>
+    <% messages.each do |type, message| %>
       <% next if message.blank? %>
       <% success = type.to_s == "notice" %>
       <div

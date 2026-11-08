@@ -1,0 +1,14 @@
+<%# Summary cards above the roster; redrawn by StaffController#update_status. %>
+<div id="staff_summary" class="mt-8 grid gap-4 sm:grid-cols-2 <%= @roles.size == 3 ? "xl:grid-cols-4" : "xl:grid-cols-3" %>">
+  <div class="admin-card p-5">
+    <p class="micro">Accounts</p>
+    <p class="mt-3 font-display text-4xl font-extrabold text-ink-950"><%= @counts[:total] %></p>
+    <p class="mt-3 text-xs text-ink-500"><%= @counts[:active] %> active</p>
+  </div>
+  <% @roles.reverse_each do |role| %>
+    <div class="admin-card p-5">
+      <p class="micro"><%= role == "staff" ? "Staff" : role.humanize.pluralize %></p>
+      <p class="mt-3 font-display text-4xl font-extrabold text-ink-950"><%= @counts.fetch(role.to_sym, 0) %></p>
+    </div>
+  <% end %>
+</div>

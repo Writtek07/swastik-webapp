@@ -1,10 +1,10 @@
 class Enquiry < ApplicationRecord
-  STATUSES = %w[new contacted quoted won closed].freeze
+  # STATUSES = %w[new contacted quoted won closed].freeze
 
   validates :name, presence: true, length: { maximum: 120 }
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :message, presence: true, length: { maximum: 4000 }
-  validates :status, inclusion: { in: STATUSES }
+  # validates :status, inclusion: { in: STATUSES }
 
   scope :recent, -> { order(created_at: :desc) }
 
